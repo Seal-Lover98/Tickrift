@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0a0c0f" />
+  <title>Tickrift — Market Simulator</title>
+  <meta name="description" content="Practice short-term trading and long-term investing with simulated money and market-linked data." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="site-header">
+      <button class="brand" data-view="home" aria-label="Tickrift home">
+        <span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-word">TICKRIFT</span>
+      </button>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <button class="nav-link active" data-view="home">Home</button>
+        <button class="nav-link" data-view="terminal">Simulator</button>
+        <button class="nav-link" data-view="portfolio">Portfolio</button>
+        <button class="nav-link" data-view="journal">Journal</button>
+        <button class="nav-link" id="tutorialNav">Tutorial</button>
+      </nav>
+      <div class="header-right">
+        <div class="data-pill" id="globalFeedPill"><span class="data-dot"></span><span id="globalFeedLabel">SIMULATION</span></div>
+        <div class="header-equity"><span>Paper equity</span><strong id="headerEquity">$100,000.00</strong></div>
+        <button class="icon-button" id="settingsButton" aria-label="Open settings">⚙</button>
+      </div>
+    </header>
+
+    <div class="simulation-ribbon">SIMULATED ENVIRONMENT · NO REAL MONEY · NO BROKERAGE ORDERS</div>
+
+    <main>
+      <section id="homeView" class="view active home-view">
+        <div class="home-hero page-width">
+          <div class="hero-copy">
+            <div class="hero-kicker">MARKET PRACTICE, NOT A BROKER</div>
+            <h1>Learn the market.<br><span>Risk nothing.</span></h1>
+            <p>Practice short-term trades or build a long-term portfolio with virtual cash. Orders, profit and loss, leverage and account balances are simulations. Nothing here can place a real trade.</p>
+            <div class="hero-actions">
+              <button class="primary-cta" id="startTradeHome">Start day trading</button>
+              <button class="secondary-cta" id="startInvestHome">Start investing</button>
+            </div>
+            <div class="hero-facts">
+              <div><strong>$100,000</strong><span>starting paper balance</span></div>
+              <div><strong>4</strong><span>market groups</span></div>
+              <div><strong>0</strong><span>real money at risk</span></div>
+            </div>
+          </div>
+
+          <div class="hero-terminal panel">
+            <div class="hero-terminal-head">
+              <div><span class="micro-label">MARKET BOARD</span><strong>Watch the tape</strong></div>
+              <span class="data-chip" id="heroDataChip">SIMULATED</span>
+            </div>
+            <div class="hero-market-list" id="heroMarketList"></div>
+            <div class="hero-chart-wrap"><canvas id="heroChart"></canvas></div>
+            <div class="hero-terminal-foot"><span>Selected</span><strong id="heroSelected">NVDA · NVIDIA</strong></div>
+          </div>
+        </div>
+
+        <section class="home-section page-width">
+          <div class="section-heading"><span>CHOOSE YOUR MODE</span><h2>Two ways to practice.</h2><p>Keep short-term trading and long-term investing separate, with different tickets and portfolio views.</p></div>
+          <div class="mode-cards">
+            <button class="mode-card" id="modeCardTrade">
+              <div class="mode-number">01</div>
+              <div><div class="mode-label">DAY TRADING</div><h3>Trade the move.</h3><p>Long or short, market/limit/stop orders, simulated leverage, stop-loss, take-profit and trailing stops.</p></div>
+              <span class="mode-arrow">↗</span>
+            </button>
+            <button class="mode-card" id="modeCardInvest">
+              <div class="mode-number">02</div>
+              <div><div class="mode-label">LONG-TERM INVESTING</div><h3>Build the portfolio.</h3><p>Buy and sell holdings, track average cost, allocation, unrealized return and recurring paper investments.</p></div>
+              <span class="mode-arrow">↗</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="home-section page-width market-coverage">
+          <div class="section-heading"><span>MARKET COVERAGE</span><h2>One terminal, multiple markets.</h2></div>
+          <div class="coverage-grid">
+            <div><span>STOCKS</span><strong>US + selected global listings</strong><p>Technology, finance, consumer, healthcare, energy and more.</p></div>
+            <div><span>CRYPTO</span><strong>Major digital assets</strong><p>BTC, ETH, SOL and other widely followed cryptocurrencies.</p></div>
+            <div><span>INDICES</span><strong>Global market benchmarks</strong><p>S&amp;P 500, Nasdaq-100, Dow, DAX, AEX and more.</p></div>
+            <div><span>FUNDS & ETFs</span><strong>Broad and sector exposure</strong><p>Index ETFs, bond funds, gold and global-market funds.</p></div>
+          </div>
+        </section>
+
+        <section class="home-section page-width how-section">
+          <div class="section-heading"><span>HOW IT WORKS</span><h2>Practice the process, not the hype.</h2></div>
+          <div class="how-grid">
+            <div><b>1</b><h3>Pick a market</h3><p>Search assets or browse stocks, crypto, indices and funds.</p></div>
+            <div><b>2</b><h3>Choose a mode</h3><p>Use Trade for short-term positions and Invest for long-term holdings.</p></div>
+            <div><b>3</b><h3>Place a paper order</h3><p>The simulator calculates quantity, fees, stops and P&amp;L using the displayed price feed.</p></div>
+            <div><b>4</b><h3>Review your decisions</h3><p>Track results in Portfolio and write down the reasoning in your Journal.</p></div>
+          </div>
+          <button class="text-cta" id="openTutorialHome">Open the full tutorial →</button>
+        </section>
+
+        <section class="legal-banner page-width">
+          <strong>Simulation only.</strong>
+          <p>Tickrift does not accept deposits, connect to a brokerage account or execute real trades. Virtual funds have no cash value and cannot be withdrawn. Market data can be live, delayed or simulated depending on the selected instrument and configured provider; the status is shown in the terminal.</p>
+        </section>
+      </section>
+
+      <section id="terminalView" class="view terminal-view">
+        <aside class="market-sidebar panel">
+          <div class="sidebar-title-row"><div><span class="micro-label">MARKETS</span><h2>Instruments</h2></div><button id="watchlistOnly" class="star-button" title="Show watchlist only">★</button></div>
+          <label class="search-input"><span>⌕</span><input id="assetSearch" type="search" placeholder="Search ticker or name" autocomplete="off" /></label>
+          <div class="asset-tabs" id="assetTabs">
+            <button class="active" data-category="stocks">Stocks</button>
+            <button data-category="crypto">Crypto</button>
+            <button data-category="indices">Indices</button>
+            <button data-category="funds">Funds</button>
+          </div>
+          <div class="asset-list" id="watchlist"></div>
+          <div class="sidebar-footer"><span id="assetCount">0 instruments</span><span>★ watchlist</span></div>
+        </aside>
+
+        <section class="terminal-main">
+          <section class="instrument-bar panel">
+            <div class="instrument-id">
+              <button id="favoriteAsset" class="favorite-button" title="Add to watchlist">☆</button>
+              <div><div class="symbol-line"><strong id="symbolLabel">NVDA</strong><span id="assetTypeBadge">STOCK</span><span class="source-badge demo" id="sourceBadge">SIMULATED</span></div><div class="instrument-name" id="nameLabel">NVIDIA</div><div class="instrument-sub"><span id="exchangeLabel">NASDAQ</span><span>·</span><span id="currencyLabel">USD</span><span>·</span><span id="marketStateLabel">Market status unavailable</span></div></div>
+            </div>
+            <div class="instrument-price"><div><strong id="priceLabel">$0.00</strong><span id="changeLabel">0.00%</span></div><div class="ohlc-mini"><span>O <b id="openLabel">—</b></span><span>H <b id="highLabel">—</b></span><span>L <b id="lowLabel">—</b></span><span>Vol <b id="volumeLabel">—</b></span></div></div>
+          </section>
+
+          <section class="chart-panel panel">
+            <div class="chart-toolbar">
+              <div class="timeframes" id="timeframes">
+                <button data-tf="1m">1m</button><button class="active" data-tf="5m">5m</button><button data-tf="15m">15m</button><button data-tf="1h">1h</button><button data-tf="4h">4h</button><button data-tf="1D">1D</button><button data-tf="1W">1W</button>
+              </div>
+              <div class="chart-actions">
+                <select id="chartType" aria-label="Chart type"><option value="candles">Candles</option><option value="hollow">Hollow candles</option><option value="heikin">Heikin Ashi</option><option value="bars">OHLC bars</option><option value="line">Line</option><option value="area">Area</option></select>
+                <button id="zoomOut" title="Zoom out">−</button><button id="zoomIn" title="Zoom in">＋</button><button id="fitChart">Fit</button>
+              </div>
+            </div>
+            <div class="indicator-toolbar" id="indicatorBar">
+              <button class="active" data-ind="volume">Volume</button><button data-ind="sma">SMA 20</button><button data-ind="sma50">SMA 50</button><button data-ind="ema">EMA 20</button><button data-ind="vwap">VWAP</button><button data-ind="bb">Bollinger</button><button data-ind="rsi">RSI</button><button data-ind="macd">MACD</button>
+              <span id="ohlcLegend">O — H — L — C —</span>
+            </div>
+            <div class="chart-stage" id="chartStage"><canvas id="chartCanvas"></canvas><div id="crosshairInfo" class="crosshair-info hidden"></div><div id="chartEmpty" class="chart-empty hidden">Waiting for market data…</div></div>
+          </section>
+
+          <section class="activity-panel panel">
+            <div class="activity-tabs" id="activityTabs">
+              <button class="active" data-pane="positions">Trades <span id="positionCount">0</span></button>
+              <button data-pane="holdings">Investments <span id="holdingCount">0</span></button>
+              <button data-pane="orders">Open orders <span id="orderCount">0</span></button>
+              <button data-pane="history">Activity <span id="historyCount">0</span></button>
+            </div>
+            <div id="activityContent" class="activity-content"></div>
+          </section>
+        </section>
+
+        <aside class="ticket-sidebar">
+          <section class="paper-card panel">
+            <div class="paper-head"><div><span class="micro-label">PAPER ACCOUNT</span><h3>Virtual balance</h3></div><span>USD</span></div>
+            <div class="paper-equity" id="equityMetric">$100,000.00</div>
+            <div class="paper-stats"><div><span>Available cash</span><strong id="cashMetric">$100,000.00</strong></div><div><span>Unrealized</span><strong id="unrealizedMetric">$0.00</strong></div><div><span>Realized</span><strong id="realizedMetric">$0.00</strong></div><div><span>Reserved margin</span><strong id="reservedMetric">$0.00</strong></div></div>
+            <div class="buying-power-line"><span>Buying power</span><strong id="buyingPower">$100,000.00</strong></div>
+          </section>
+
+          <section class="order-card panel">
+            <div class="mode-switch" id="modeSwitch"><button class="active" data-mode="trade"><strong>Trade</strong><span>Short-term</span></button><button data-mode="invest"><strong>Invest</strong><span>Long-term</span></button></div>
+
+            <div id="tradeTicket" class="ticket-body">
+              <div class="ticket-intro"><strong>Day trade</strong><span>Paper long/short positions</span></div>
+              <div class="side-switch" id="directionToggle"><button class="active long" data-side="long">Long</button><button class="short" data-side="short">Short</button></div>
+              <div class="field"><label>Order type</label><div class="segmented" id="tradeOrderTypes"><button class="active" data-type="market">Market</button><button data-type="limit">Limit</button><button data-type="stop">Stop</button></div></div>
+              <div class="field hidden" id="tradeTriggerRow"><label for="tradeTrigger">Trigger price</label><div class="money-input"><span>$</span><input id="tradeTrigger" type="number" step="0.01" /></div></div>
+              <div class="two-fields"><div class="field"><label for="tradeAmount">Margin</label><div class="money-input"><span>$</span><input id="tradeAmount" type="number" min="10" step="10" value="5000" /></div></div><div class="field"><label for="tradeLeverage">Leverage</label><select id="tradeLeverage"><option>1</option><option>2</option><option>3</option><option>5</option></select></div></div>
+              <div class="quick-amounts" id="tradeQuick"><button data-value="1000">$1k</button><button data-value="5000">$5k</button><button data-value="10000">$10k</button><button data-value="25000">$25k</button></div>
+              <div class="risk-box">
+                <div><label><input id="slEnabled" type="checkbox" /> Stop loss</label><div><input id="slValue" type="number" value="2" min="0.1" step="0.1" disabled /><span>%</span></div></div>
+                <div><label><input id="tpEnabled" type="checkbox" /> Take profit</label><div><input id="tpValue" type="number" value="4" min="0.1" step="0.1" disabled /><span>%</span></div></div>
+                <div><label><input id="trailEnabled" type="checkbox" /> Trailing stop</label><div><input id="trailValue" type="number" value="1.5" min="0.1" step="0.1" disabled /><span>%</span></div></div>
+              </div>
+              <div class="preview-list"><div><span>Estimated quantity</span><strong id="tradeQty">—</strong></div><div><span>Estimated fee</span><strong id="tradeFee">—</strong></div><div><span>Liquidation buffer</span><strong id="liquidationPreview">—</strong></div></div>
+              <button id="tradeSubmit" class="order-submit long">Open long</button>
+              <div id="tradeMessage" class="ticket-message"></div>
+            </div>
+
+            <div id="investTicket" class="ticket-body hidden">
+              <div class="ticket-intro"><strong>Long-term investment</strong><span>Paper holdings, no leverage</span></div>
+              <div class="side-switch invest" id="investSideToggle"><button class="active" data-side="buy">Buy</button><button data-side="sell">Sell</button></div>
+              <div class="field"><label>Order type</label><div class="segmented two" id="investOrderTypes"><button class="active" data-type="market">Market</button><button data-type="limit">Limit</button></div></div>
+              <div class="field hidden" id="investTriggerRow"><label for="investTrigger">Limit price</label><div class="money-input"><span>$</span><input id="investTrigger" type="number" step="0.01" /></div></div>
+              <div class="field"><label for="investAmount">Amount</label><div class="money-input"><span>$</span><input id="investAmount" type="number" min="10" step="10" value="1000" /></div></div>
+              <div class="quick-amounts" id="investQuick"><button data-value="250">$250</button><button data-value="1000">$1k</button><button data-value="5000">$5k</button><button data-value="10000">$10k</button></div>
+              <div class="recurring-box"><label class="switch-line"><span><strong>Recurring paper buy</strong><small>Runs while the simulator is open</small></span><input id="recurringEnabled" type="checkbox" /></label><div class="two-fields hidden" id="recurringFields"><div class="field"><label for="recurringFrequency">Frequency</label><select id="recurringFrequency"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div><div class="field"><label for="recurringAmount">Amount</label><div class="money-input"><span>$</span><input id="recurringAmount" type="number" value="250" min="10" step="10" /></div></div></div></div>
+              <div class="preview-list"><div><span>Estimated shares</span><strong id="investQty">—</strong></div><div><span>Current holding</span><strong id="currentHolding">—</strong></div><div><span>Estimated fee</span><strong id="investFee">—</strong></div></div>
+              <button id="investSubmit" class="order-submit invest">Buy investment</button>
+              <div id="investMessage" class="ticket-message"></div>
+            </div>
+          </section>
+
+          <section class="market-stats panel"><div class="paper-head"><div><span class="micro-label">SESSION</span><h3>Market stats</h3></div></div><div class="stats-grid"><div><span>Day range</span><strong id="dayRangeStat">—</strong></div><div><span>52w range*</span><strong id="yearRangeStat">—</strong></div><div><span>Data source</span><strong id="dataSourceStat">Simulation</strong></div><div><span>Updated</span><strong id="updatedStat">—</strong></div></div><small class="stat-note">*52-week range is simulated unless supplied by a live provider.</small></section>
+        </aside>
+      </section>
+
+      <section id="portfolioView" class="view portfolio-view">
+        <div class="page-width page-pad">
+          <div class="page-title-row"><div><span class="micro-label">PAPER PORTFOLIO</span><h1>Portfolio</h1><p>Long-term holdings and trading performance in one simulated account.</p></div><div class="page-value"><span>Total paper equity</span><strong id="portfolioEquity">$100,000.00</strong></div></div>
+          <div class="kpi-grid"><div class="panel kpi"><span>Available cash</span><strong id="portfolioCash">$0</strong></div><div class="panel kpi"><span>Invested cost</span><strong id="investedKpi">$0</strong></div><div class="panel kpi"><span>Trading P&amp;L</span><strong id="tradingPnlKpi">$0</strong></div><div class="panel kpi"><span>Investment P&amp;L</span><strong id="investPnlKpi">$0</strong></div><div class="panel kpi"><span>Open orders</span><strong id="openOrdersKpi">0</strong></div></div>
+          <div class="portfolio-grid"><section class="panel allocation-panel"><div class="panel-heading"><h3>Allocation</h3><span id="recurringCount">0 recurring plans</span></div><div class="allocation-body"><canvas id="allocationCanvas"></canvas><div id="allocationLegend"></div></div></section><section class="panel performance-panel"><div class="panel-heading"><h3>Account equity</h3><span>paper performance</span></div><canvas id="equityCanvas"></canvas></section></div>
+          <section class="panel holdings-panel"><div class="panel-heading"><h3>Long-term holdings</h3><span>market value &amp; cost basis</span></div><div id="portfolioHoldings" class="table-host"></div></section>
+        </div>
+      </section>
+
+      <section id="journalView" class="view journal-view">
+        <div class="page-width page-pad">
+          <div class="page-title-row"><div><span class="micro-label">DECISION LOG</span><h1>Journal</h1><p>Record why you entered, exited or avoided a simulated position.</p></div></div>
+          <div class="journal-grid"><section class="panel journal-form"><div class="two-fields"><div class="field"><label for="journalAsset">Instrument</label><select id="journalAsset"></select></div><div class="field"><label for="journalTag">Tag</label><select id="journalTag"><option>Trade idea</option><option>Entry</option><option>Exit</option><option>Investment thesis</option><option>Mistake</option><option>Review</option></select></div></div><div class="field"><label for="journalText">Notes</label><textarea id="journalText" rows="10" placeholder="What did you see, what was your plan, and what would invalidate it?"></textarea></div><button id="saveJournal" class="secondary-cta">Save entry</button></section><section class="panel journal-list-panel"><div class="panel-heading"><h3>Entries</h3><button id="clearJournal" class="text-button">Clear</button></div><div id="journalList" class="journal-list"></div></section></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>Tickrift is a simulation. No deposits, withdrawals or real orders.</span><span id="footerData">Market data status varies by instrument.</span></footer>
+  </div>
+
+  <div id="settingsBackdrop" class="overlay hidden">
+    <aside class="drawer" id="settingsDrawer" aria-label="Settings">
+      <div class="drawer-head"><div><span class="micro-label">PREFERENCES</span><h2>Settings</h2></div><button class="icon-button" id="closeSettings">×</button></div>
+      <section><label class="setting-title">Theme</label><div class="theme-grid" id="themePresets"><button class="active" data-theme="carbon">Carbon</button><button data-theme="slate">Slate</button><button data-theme="midnight">Midnight</button></div></section>
+      <section><label class="setting-title">Candles</label><div class="color-grid"><label>Bullish <input id="upColor" type="color" value="#35c58a" /></label><label>Bearish <input id="downColor" type="color" value="#ef5f72" /></label></div></section>
+      <section><label class="setting-title">Chart</label><div class="toggle-list"><label>Grid <input id="gridToggle" type="checkbox" checked /></label><label>Crosshair <input id="crosshairToggle" type="checkbox" checked /></label><label>Compact tables <input id="compactToggle" type="checkbox" /></label></div></section>
+      <section><label class="setting-title">Simulation</label><button id="openTutorialSettings" class="drawer-button">Open tutorial</button><button id="resetSimulation" class="danger-button">Reset paper account</button></section>
+      <p class="drawer-note">Resetting removes the paper balance, positions, holdings, orders, journal and performance history stored in this browser.</p>
+    </aside>
+  </div>
+
+  <div id="tutorialOverlay" class="overlay hidden">
+    <section class="tutorial-modal panel">
+      <div class="tutorial-head"><div><span class="micro-label">TICKRIFT BASICS</span><h2>How the simulator works</h2></div><button class="icon-button" id="closeTutorial">×</button></div>
+      <div class="tutorial-progress" id="tutorialProgress"></div>
+      <div class="tutorial-content" id="tutorialContent"></div>
+      <div class="tutorial-actions"><button class="secondary-cta" id="tutorialPrev">Back</button><button class="primary-cta" id="tutorialNext">Next</button></div>
+    </section>
+  </div>
+
+  <div id="depletedOverlay" class="overlay hidden">
+    <section class="depleted-modal panel"><span class="micro-label">PAPER ACCOUNT</span><h2>No buying power left.</h2><p id="depletedText">Your simulated account has no cash or assets left to use. Nothing real was lost.</p><div class="depleted-actions"><button id="restart100" class="primary-cta">Restart with $100,000</button><button id="restart10" class="secondary-cta">$10,000 challenge</button></div><button id="closeDepleted" class="text-button">Close</button></section>
+  </div>
+
+  <div id="toastHost" class="toast-host" aria-live="polite"></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
