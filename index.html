@@ -4,10 +4,35 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <meta name="theme-color" content="#0a0c0f" />
-  <title>Tickrift — Market Simulator</title>
-  <meta name="description" content="Practice short-term trading and long-term investing with simulated money and market-linked data." />
+  <meta name="theme-color" content="#090b0e" />
+  <meta name="google-site-verification" content="4eabA-bonOoRC9P33OMjlOiyw8Vg6XETesz7h0Su8x4" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <title>Tickrift — Free Paper Trading & Investing Simulator</title>
+  <meta name="description" content="Practice paper trading, crypto simulation and long-term investing with virtual money. Explore stocks, ETFs, indices and crypto with charts, orders, risk controls and a paper portfolio." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Tickrift" />
+  <meta property="og:title" content="Tickrift — Paper Trading & Investing Simulator" />
+  <meta property="og:description" content="Practice market decisions with virtual money. No deposits, no withdrawals and no real brokerage orders." />
+  <meta property="og:image" content="/og-card.png" />
+  <meta property="og:url" content="" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tickrift — Paper Trading & Investing Simulator" />
+  <meta name="twitter:description" content="A market simulator for paper trading and long-term investing with virtual money." />
+  <meta name="twitter:image" content="/og-card.png" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/site.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebApplication",
+    "name":"Tickrift",
+    "applicationCategory":"FinanceApplication",
+    "operatingSystem":"Any",
+    "description":"A paper trading and investing simulator using virtual money. Tickrift does not execute real brokerage orders.",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+  }
+  </script>
 </head>
 <body>
   <div id="app">
@@ -22,6 +47,7 @@
         <button class="nav-link" data-view="portfolio">Portfolio</button>
         <button class="nav-link" data-view="journal">Journal</button>
         <button class="nav-link" id="tutorialNav">Tutorial</button>
+        <a class="nav-link nav-anchor" href="learn/paper-trading/">Learn</a>
       </nav>
       <div class="header-right">
         <div class="data-pill" id="globalFeedPill"><span class="data-dot"></span><span id="globalFeedLabel">SIMULATION</span></div>
@@ -30,7 +56,7 @@
       </div>
     </header>
 
-    <div class="simulation-ribbon">SIMULATED ENVIRONMENT · NO REAL MONEY · NO BROKERAGE ORDERS</div>
+    <div class="simulation-ribbon" role="status">SIMULATION ONLY · VIRTUAL FUNDS · NO DEPOSITS · NO WITHDRAWALS · NO REAL BROKERAGE ORDERS</div>
 
     <main>
       <section id="homeView" class="view active home-view">
@@ -38,7 +64,7 @@
           <div class="hero-copy">
             <div class="hero-kicker">MARKET PRACTICE, NOT A BROKER</div>
             <h1>Learn the market.<br><span>Risk nothing.</span></h1>
-            <p>Practice short-term trades or build a long-term portfolio with virtual cash. Orders, profit and loss, leverage and account balances are simulations. Nothing here can place a real trade.</p>
+            <p>Practice day trading, crypto and long-term investing with virtual cash. Use charts, paper orders, risk controls and a portfolio without depositing money. Nothing in Tickrift can place a real brokerage order.</p>
             <div class="hero-actions">
               <button class="primary-cta" id="startTradeHome">Start day trading</button>
               <button class="secondary-cta" id="startInvestHome">Start investing</button>
@@ -96,6 +122,15 @@
             <div><b>4</b><h3>Review your decisions</h3><p>Track results in Portfolio and write down the reasoning in your Journal.</p></div>
           </div>
           <button class="text-cta" id="openTutorialHome">Open the full tutorial →</button>
+        </section>
+
+        <section class="home-section page-width learn-section">
+          <div class="section-heading"><span>LEARN</span><h2>Understand the simulator before you use it.</h2><p>Short guides explain paper trading, long-term investing and how market-linked data differs from simulated prices.</p></div>
+          <div class="learn-links">
+            <a href="learn/paper-trading/"><span>Paper trading</span><strong>How a paper trading simulator works</strong><small>Orders, positions, P&amp;L and the limits of simulated execution.</small></a>
+            <a href="learn/long-term-investing/"><span>Investing</span><strong>How virtual long-term investing works</strong><small>Holdings, average cost, allocation and recurring paper buys.</small></a>
+            <a href="data-sources/"><span>Market data</span><strong>Live, delayed and simulated data</strong><small>Know exactly what each data badge in Tickrift means.</small></a>
+          </div>
         </section>
 
         <section class="legal-banner page-width">
@@ -218,7 +253,16 @@
       </section>
     </main>
 
-    <footer class="site-footer"><span>Tickrift is a simulation. No deposits, withdrawals or real orders.</span><span id="footerData">Market data status varies by instrument.</span></footer>
+    <footer class="site-footer">
+      <span>Tickrift is a simulation. No deposits, withdrawals or real orders.</span>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="learn/paper-trading/">Learn</a>
+        <a href="data-sources/">Data sources</a>
+        <a href="privacy/">Privacy</a>
+        <a href="terms/">Terms</a>
+      </nav>
+      <span id="footerData">Market data status varies by instrument.</span>
+    </footer>
   </div>
 
   <div id="settingsBackdrop" class="overlay hidden">

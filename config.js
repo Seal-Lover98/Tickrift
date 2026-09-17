@@ -1,8 +1,8 @@
 /* Tickrift runtime configuration.
-   marketDataEndpoint: your licensed backend/edge-worker URL for stocks, ETFs and indices.
-   directCrypto: uses CoinGecko public endpoints for market-linked crypto data when available. */
+   The default endpoint is the same-origin Cloudflare Pages Function included in this repository.
+   No provider key is exposed to the browser. If no licensed provider key is configured,
+   Tickrift stays in clearly labelled SIMULATED mode. */
 window.TICKRIFT_CONFIG = {
-  marketDataEndpoint: "",
-  directCrypto: true,
-  cryptoAttribution: true
+  marketDataEndpoint: "/api/market",
+  marketDataPollMs: 60000
 };

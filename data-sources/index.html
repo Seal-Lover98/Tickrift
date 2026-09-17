@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#090b0e" />
+  <meta name="google-site-verification" content="4eabA-bonOoRC9P33OMjlOiyw8Vg6XETesz7h0Su8x4" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />
+  <title>Market Data Sources — Tickrift</title>
+  <meta name="description" content="How Tickrift labels market, delayed and simulated price data in its paper trading simulator." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Tickrift" />
+  <meta property="og:title" content="Market Data Sources — Tickrift" />
+  <meta property="og:description" content="How Tickrift labels market, delayed and simulated price data in its paper trading simulator." />
+  <meta property="og:image" content="/og-card.png" />
+  <meta property="og:url" content="" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="content-shell">
+    <header class="content-top">
+      <a class="content-brand" href="/"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span>TICKRIFT</a>
+      <nav class="content-nav" aria-label="Page navigation"><a href="/">Simulator</a><a href="/learn/paper-trading/">Learn</a><a href="/data-sources/">Data</a></nav>
+    </header>
+    <article>
+      <header class="content-hero"><span class="eyebrow">MARKET DATA</span><h1>Know what the chart is actually showing.</h1><p>Tickrift distinguishes provider-linked market data from generated simulation prices.</p></header>
+      
+<div class="content-note">The data badge beside every instrument is the source of truth inside the interface. If a provider request fails, Tickrift falls back to <strong>SIMULATED</strong> rather than pretending generated prices are live.</div>
+<section class="content-section"><h2>Three data states</h2><div class="content-grid"><div class="content-card"><span>MARKET</span><strong>Provider-linked data</strong><p>The current price and chart history came from the configured market-data provider.</p></div><div class="content-card"><span>DELAYED</span><strong>Provider-linked, delayed</strong><p>The data came from a provider but is explicitly marked delayed according to the configured data entitlement.</p></div><div class="content-card"><span>SIMULATED</span><strong>Generated practice prices</strong><p>No provider data is currently being used for that instrument. The simulator generates movement for practice only.</p></div><div class="content-card"><span>NO HIDDEN FEED</span><strong>Status stays visible</strong><p>The interface never labels generated prices as live market data.</p></div></div></section>
+<section class="content-section"><h2>Production market-data bridge</h2><p>The production package includes a same-origin serverless bridge at <span class="code-inline">/api/market</span>. It keeps the provider key out of public JavaScript and exposes only the price and candle fields Tickrift needs.</p><p>The included bridge is written for Twelve Data. Before public commercial display, the site owner must use a provider plan and any exchange entitlements that permit the intended display and redistribution. A working API key is deliberately not shipped in the repository.</p></section>
+<section class="content-section"><h2>Why a simulator can differ from a real trade</h2><p>A displayed chart does not reproduce order-book depth, queue position, partial fills, every fee, venue routing, halts, corporate actions or all latency. Tickrift applies simplified simulated slippage and fees so an order is not treated as a guaranteed exact fill.</p></section>
+    </article>
+    <footer class="content-footer"><span>Tickrift · simulation only · no real money or brokerage orders</span><nav><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/data-sources/">Data sources</a></nav></footer>
+  </main>
+</body>
+</html>

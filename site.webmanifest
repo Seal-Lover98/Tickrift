@@ -1,0 +1,10 @@
+{
+  "name": "Tickrift",
+  "short_name": "Tickrift",
+  "description": "Paper trading and long-term investing simulator with virtual money.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090b0e",
+  "theme_color": "#090b0e",
+  "icons": [{"src":"/favicon.svg","sizes":"any","type":"image/svg+xml"}]
+}

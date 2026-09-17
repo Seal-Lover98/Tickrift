@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#090b0e" />
+  <meta name="google-site-verification" content="4eabA-bonOoRC9P33OMjlOiyw8Vg6XETesz7h0Su8x4" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />
+  <title>Privacy — Tickrift</title>
+  <meta name="description" content="How Tickrift handles browser storage and data in the paper trading simulator." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Tickrift" />
+  <meta property="og:title" content="Privacy — Tickrift" />
+  <meta property="og:description" content="How Tickrift handles browser storage and data in the paper trading simulator." />
+  <meta property="og:image" content="/og-card.png" />
+  <meta property="og:url" content="" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="content-shell">
+    <header class="content-top">
+      <a class="content-brand" href="/"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span>TICKRIFT</a>
+      <nav class="content-nav" aria-label="Page navigation"><a href="/">Simulator</a><a href="/learn/paper-trading/">Learn</a><a href="/data-sources/">Data</a></nav>
+    </header>
+    <article>
+      <header class="content-hero"><span class="eyebrow">PRIVACY</span><h1>Privacy without unnecessary tracking.</h1><p>The launch version keeps the simulator local and avoids analytics or advertising trackers.</p></header>
+      
+<section class="content-section"><h2>Privacy at a glance</h2><p>Tickrift is designed to work without user accounts. The launch version does not include Google Analytics, advertising trackers, social-media pixels or a marketing cookie banner.</p><div class="content-grid"><div class="content-card"><span>Stored on your device</span><strong>Your simulation state</strong><p>Virtual cash, positions, holdings, settings, watchlists and journal entries are stored in your browser so the simulator can remember your session.</p></div><div class="content-card"><span>Not sent as an account</span><strong>No Tickrift profile</strong><p>Tickrift does not create a server-side account from your simulator state and does not ask for your name, email or payment details in this version.</p></div></div></section>
+<section class="content-section"><h2>Local browser storage</h2><p>Tickrift uses browser storage for the features you explicitly use: keeping your paper account, settings and journal available when you return. Clearing site data in your browser removes that locally stored simulation state.</p><p>The site does not use that local state to build an advertising profile.</p></section>
+<section class="content-section"><h2>Network requests</h2><p>When a licensed market-data feed is enabled, the browser requests market information from Tickrift's own API endpoint. The upstream provider key stays on the server and is not exposed in the browser.</p><p>Like most hosting and API infrastructure, the hosting provider and market-data provider may process ordinary technical information needed to deliver requests, such as IP address, timestamps and request metadata, under their own infrastructure and policies.</p></section>
+<section class="content-section"><h2>Changes</h2><p>If Tickrift later adds accounts, payments, analytics or advertising, this page should be updated before those features go live. Features that require additional consent should not be enabled silently.</p></section>
+    </article>
+    <footer class="content-footer"><span>Tickrift · simulation only · no real money or brokerage orders</span><nav><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/data-sources/">Data sources</a></nav></footer>
+  </main>
+</body>
+</html>

@@ -1,76 +1,65 @@
-# Tickrift live / market-linked data
+# Tickrift market-data setup
 
-## What works immediately
+## Default behavior
 
-The frontend contains a direct CoinGecko adapter for crypto. When CoinGecko responds successfully, the selected crypto asset is labelled `MARKET`, the current price is updated from CoinGecko, and Tickrift builds chart candles from CoinGecko historical price points.
-
-If that request fails or is rate-limited, the instrument remains clearly labelled `SIMULATED`.
-
-## Stocks, ETFs, and indices
-
-For public stock/exchange data, use a licensed backend. `market-worker.js` is a ready-made Cloudflare Worker example using Twelve Data as the upstream provider.
-
-The flow is:
-
-```
-GitHub Pages / static frontend
-        ↓
-Tickrift market-data bridge
-        ↓
-Licensed market-data provider
-```
-
-The API key stays in the backend environment, never in the browser.
-
-## Frontend configuration
-
-After deploying the worker, edit `config.js`:
+`config.js` points the frontend to the same-origin endpoint:
 
 ```js
-window.TICKRIFT_CONFIG = {
-  marketDataEndpoint: "https://YOUR-WORKER.example.workers.dev",
-  directCrypto: true,
-  cryptoAttribution: true
-};
+marketDataEndpoint: "/api/market"
 ```
 
-## Backend contract
+The Cloudflare Pages Functions in `functions/api/market/` proxy the minimum price/candle data the simulator needs. If the backend has no API key, is rate-limited, or does not return an instrument, the frontend keeps that instrument in clearly labelled `SIMULATED` mode.
 
-Tickrift uses two endpoints.
+## Server-side secret
 
-### `GET /snapshot?symbols=AAPL,MSFT,SPX`
+Configure in Cloudflare Pages:
 
-Expected response:
+- `TWELVE_DATA_API_KEY` — encrypted secret
+- `MARKET_DATA_MODE` — `live` or `delayed`
+
+The API key must never be committed to GitHub or placed in `config.js` / `app.js`.
+
+## Frontend contract
+
+### `GET /api/market/snapshot?symbols=AAPL,MSFT,BTC`
+
+Returns:
 
 ```json
 {
-  "source": "Market provider",
+  "source": "Twelve Data",
+  "delayed": false,
   "quotes": {
     "AAPL": {
       "price": 250.12,
+      "open": 248.7,
+      "high": 251.2,
+      "low": 247.8,
       "volume": 1234567,
+      "percentChange": 0.72,
       "timestamp": 1780000000000,
       "delayed": false,
-      "source": "Market provider"
+      "source": "Twelve Data",
+      "marketOpen": true
     }
   }
 }
 ```
 
-### `GET /history?symbol=AAPL&interval=5min&limit=320`
+### `GET /api/market/history?symbol=AAPL&interval=5min&limit=320`
 
-Expected response:
+Returns ordered OHLCV candles:
 
 ```json
 {
-  "source": "Market provider",
+  "source": "Twelve Data",
   "delayed": false,
   "candles": [
     {
       "time": 1780000000000,
-      "open": 249.80,
-      "high": 250.30,
-      "low": 249.60,
+      "open": 249.8,
+      "high": 250.3,
+      "low": 249.6,
       "close": 250.12,
       "volume": 123456
     }
@@ -78,17 +67,8 @@ Expected response:
 }
 ```
 
-## Cloudflare Worker setup
+## Data rights matter
 
-`market-worker.js` expects:
+A functioning API is not automatically permission to publish every exchange feed commercially. Before monetization, verify that the provider plan and any exchange entitlements cover public display/redistribution for the exact markets used by Tickrift.
 
-- secret: `MARKET_DATA_KEY`
-- optional variable: `MARKET_DATA_MODE=live` or `MARKET_DATA_MODE=delayed`
-
-The mode variable exists so the frontend does not falsely call delayed data live. Set it to match the rights/data you actually receive.
-
-## Licensing
-
-The code does not grant market-data display or redistribution rights. Before monetizing the site, check the current provider and exchange terms for public/commercial display. If required, use the provider's business/public-display plan and the necessary exchange licences.
-
-CoinGecko attribution is already shown in Tickrift when the direct crypto feed is active. Verify the current CoinGecko terms for the plan/use case before launching a monetized version.
+The UI exposes the resulting state as `MARKET`, `DELAYED`, or `SIMULATED` so the site does not overstate data freshness.

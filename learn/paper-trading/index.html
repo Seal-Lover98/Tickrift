@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#090b0e" />
+  <meta name="google-site-verification" content="4eabA-bonOoRC9P33OMjlOiyw8Vg6XETesz7h0Su8x4" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />
+  <title>Paper Trading Simulator Guide — Tickrift</title>
+  <meta name="description" content="Learn how Tickrift paper trading works with virtual cash, long and short positions, order types, risk controls and simulated P&L." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Tickrift" />
+  <meta property="og:title" content="Paper Trading Simulator Guide — Tickrift" />
+  <meta property="og:description" content="Learn how Tickrift paper trading works with virtual cash, long and short positions, order types, risk controls and simulated P&L." />
+  <meta property="og:image" content="/og-card.png" />
+  <meta property="og:url" content="" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="content-shell">
+    <header class="content-top">
+      <a class="content-brand" href="/"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span>TICKRIFT</a>
+      <nav class="content-nav" aria-label="Page navigation"><a href="/">Simulator</a><a href="/learn/paper-trading/">Learn</a><a href="/data-sources/">Data</a></nav>
+    </header>
+    <article>
+      <header class="content-hero"><span class="eyebrow">PAPER TRADING</span><h1>How the Tickrift paper trading simulator works.</h1><p>A practical explanation of the virtual-money trading mode and the limits of simulated execution.</p></header>
+      
+<div class="content-note"><strong>Paper trading uses virtual money.</strong> A paper order changes only the Tickrift simulation. It cannot reach a broker or move real funds.</div>
+<section class="content-section"><h2>What paper trading is</h2><p>Paper trading is a way to rehearse market decisions without placing a real-money order. In Tickrift, a paper account starts with virtual cash. Opening a position changes that virtual cash, the position list and the simulated profit or loss.</p><p>The useful part is practicing a repeatable process: choosing an instrument, defining an order, planning an exit and reviewing the result. The limitation is equally important: simulated execution cannot reproduce every real-world cost or emotional pressure.</p></section>
+<section class="content-section"><h2>What the Trade mode models</h2><div class="content-grid"><div class="content-card"><span>Direction</span><strong>Long and short</strong><p>Long positions gain in the simulation when price rises; short positions gain when price falls.</p></div><div class="content-card"><span>Orders</span><strong>Market, limit and stop</strong><p>Market orders fill immediately in the simulator. Limit and stop orders wait for the displayed price to reach their trigger.</p></div><div class="content-card"><span>Risk controls</span><strong>Stop-loss and take-profit</strong><p>Optional exits monitor the simulated position and close it when the specified paper threshold is reached.</p></div><div class="content-card"><span>Review</span><strong>Positions and journal</strong><p>The bottom trading dock keeps open positions visible while the chart remains on screen.</p></div></div></section>
+<section class="content-section"><h2>Why simulation results are not real-world results</h2><p>Real markets include bid-ask spreads, liquidity, queue priority, changing fees, latency, halts and other execution details. Tickrift uses simplified slippage and fees. A strategy that appears successful in a simulation can perform differently with real money.</p></section>
+<section class="content-section"><h2>How to use the simulator</h2><ul><li>Choose an instrument and check whether its badge says MARKET, DELAYED or SIMULATED.</li><li>Use the chart and timeframe controls to inspect the displayed data.</li><li>Set the paper order size and, if useful for the exercise, a stop-loss or take-profit.</li><li>Keep the Trades panel open at the bottom of the terminal so the position can be closed without leaving the chart.</li><li>Record the reason for the decision in the Journal and review the outcome later.</li></ul><div class="content-cta"><a class="primary-cta" href="/">Open Tickrift</a><a class="secondary-cta" href="/learn/long-term-investing/">Long-term investing guide</a></div></section>
+    </article>
+    <footer class="content-footer"><span>Tickrift · simulation only · no real money or brokerage orders</span><nav><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/data-sources/">Data sources</a></nav></footer>
+  </main>
+</body>
+</html>

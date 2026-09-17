@@ -17,3 +17,135 @@ body.theme-slate{--bg:#0f1419;--bg2:#131920;--surface:#171d24;--surface2:#1b222b
 @media(max-width:880px){.site-header{grid-template-columns:1fr auto}.site-nav{display:none}.data-pill{display:none}.simulation-ribbon{font-size:7px}.page-width{padding-left:14px;padding-right:14px}.home-hero{display:block;min-height:0;padding-top:48px}.hero-terminal{margin-top:42px;min-height:470px}.mode-cards{grid-template-columns:1fr}.coverage-grid,.how-grid{grid-template-columns:1fr 1fr}.terminal-view.active{display:block}.market-sidebar{min-height:360px;max-height:480px;margin-bottom:7px}.terminal-main{display:block}.instrument-bar,.chart-panel,.activity-panel{margin-bottom:7px}.chart-panel{height:610px}.ticket-sidebar{display:block}.ticket-sidebar>*{margin-bottom:7px}.kpi-grid{grid-template-columns:1fr 1fr}.portfolio-grid,.journal-grid{grid-template-columns:1fr}.site-footer{height:auto;min-height:42px;padding:7px 12px;display:grid;gap:3px}.legal-banner{grid-template-columns:1fr;gap:8px}.page-title-row{align-items:start}.page-value{display:none}}
 @media(max-width:560px){.hero-copy h1{font-size:50px}.hero-actions,.depleted-actions{display:grid}.hero-facts{gap:16px;flex-wrap:wrap}.coverage-grid,.how-grid{grid-template-columns:1fr}.coverage-grid>div{border-right:0}.mode-card{grid-template-columns:34px 1fr auto;padding:20px}.mode-card h3{font-size:23px}.header-right .icon-button{width:30px;height:30px}.brand-word{font-size:12px}.home-hero{padding-top:34px}.hero-terminal{padding:12px}.kpi-grid{grid-template-columns:1fr}.allocation-body{grid-template-columns:1fr;justify-items:center}.two-fields{grid-template-columns:1fr}.tutorial-example{grid-template-columns:1fr}.tutorial-content h3{font-size:25px}}
 .site-footer a{color:#8994a1;text-decoration:none}.site-footer a:hover{color:#d8dee6;text-decoration:underline}
+
+/* ===== Tickrift launch layout & polish ===== */
+html{scroll-behavior:smooth}
+body{font-feature-settings:"tnum" 1,"ss01" 1;text-rendering:optimizeLegibility}
+button,a,input,select,textarea{touch-action:manipulation}
+a{color:inherit}
+.nav-anchor{text-decoration:none;display:flex;align-items:center}
+.learn-links{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.learn-links a{min-height:170px;padding:22px;border:1px solid var(--line);border-radius:10px;background:#0e1216;text-decoration:none;display:flex;flex-direction:column;transition:border-color .15s ease,background .15s ease,transform .15s ease}
+.learn-links a:hover{border-color:#394451;background:#12171d;transform:translateY(-1px)}
+.learn-links span{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.learn-links strong{font-size:17px;line-height:1.25;margin:24px 0 9px;letter-spacing:-.015em}
+.learn-links small{font-size:10px;line-height:1.6;color:var(--muted)}
+
+/* A desktop trading terminal should behave like a terminal: one viewport, internal scroll areas. */
+@media(min-width:881px){
+  body.terminal-active{overflow:hidden}
+  body.terminal-active .site-footer{display:none}
+  .terminal-view.active{
+    height:calc(100dvh - var(--header) - var(--ribbon));
+    min-height:0;
+    overflow:hidden;
+    grid-template-columns:220px minmax(560px,1fr) 304px;
+    grid-template-rows:minmax(0,1fr);
+    padding:6px;
+    gap:6px;
+  }
+  .market-sidebar{height:100%;min-height:0}
+  .terminal-main{
+    height:100%;
+    min-height:0;
+    grid-template-rows:68px minmax(250px,1fr) 196px;
+    gap:6px;
+  }
+  .instrument-bar{min-height:0}
+  .chart-panel{min-height:0;grid-template-rows:37px 29px minmax(0,1fr)}
+  .chart-toolbar,.indicator-toolbar{padding-left:8px;padding-right:8px}
+  .timeframes button,.chart-actions button,.indicator-toolbar button{height:23px;padding:0 7px}
+  .chart-actions select{height:25px}
+  .activity-panel{height:196px;min-height:0}
+  .activity-tabs{height:34px}
+  .activity-tabs button{height:25px}
+  .activity-content{height:160px;min-height:0;overflow:auto}
+  .data-table th,.data-table td{padding:7px 9px}
+  .ticket-sidebar{height:100%;min-height:0;overflow:auto;align-content:start;padding-right:1px;scrollbar-width:thin}
+  .paper-card,.order-card,.market-stats{padding:11px}
+  .paper-equity{font-size:22px;margin:10px 0 9px}
+  .paper-stats{gap:8px}
+  .buying-power-line{margin-top:9px;padding-top:8px}
+  .mode-switch{margin-bottom:8px}
+  .mode-switch button{height:36px}
+  .ticket-body{gap:7px}
+  .field{gap:4px}
+  .field input,.field select,.money-input{height:31px}
+  .quick-amounts button{height:25px}
+  .risk-box{gap:5px}
+  .risk-box>div{min-height:31px;padding:4px 6px}
+  .preview-list{padding-top:6px;gap:4px}
+  .order-submit{height:35px}
+  .market-stats{margin-bottom:2px}
+}
+
+/* Make the order/position dock visually obvious without making the chart dominate the screen. */
+.activity-panel{border-color:#2b333d;background:#0d1115}
+.activity-tabs{background:#10151a}
+.activity-tabs button.active{box-shadow:inset 0 -1px 0 #dce2e8;background:#171d24}
+.row-action{min-width:52px;font-weight:700}
+.row-action:hover{background:#1d242c}
+.chart-stage{isolation:isolate}
+.chart-stage::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.012)}
+.source-badge{white-space:nowrap}
+
+/* Smaller screens keep the terminal usable rather than squeezing three columns beyond readability. */
+@media(min-width:881px) and (max-width:1180px){
+  .terminal-view.active{grid-template-columns:196px minmax(500px,1fr) 278px}
+  .ohlc-mini span:last-child{display:none}
+  .indicator-toolbar button{padding:0 5px}
+  .ticket-sidebar{font-size:95%}
+}
+@media(max-height:760px) and (min-width:881px){
+  .terminal-main{grid-template-rows:60px minmax(220px,1fr) 172px}
+  .activity-panel{height:172px}
+  .activity-content{height:138px}
+  .instrument-name{display:none}
+  .paper-stats{grid-template-columns:1fr 1fr}
+  .market-stats{display:none}
+}
+
+.site-footer{gap:20px}
+.footer-links{display:flex;align-items:center;gap:14px;margin-left:auto;margin-right:auto}
+.footer-links a{color:#7e8995;text-decoration:none}
+.footer-links a:hover{color:#d9e0e7}
+
+@media(max-width:880px){
+  body.terminal-active{overflow:auto}
+  .learn-links{grid-template-columns:1fr}
+  .footer-links{order:3;width:100%;justify-content:flex-start;flex-wrap:wrap;margin:4px 0 0}
+  .site-footer{display:flex;flex-wrap:wrap}
+}
+
+/* ===== Static launch pages ===== */
+.content-shell{max-width:980px;margin:0 auto;padding:64px 24px 90px}
+.content-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:56px}
+.content-brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:850;letter-spacing:.12em;font-size:14px}
+.content-nav{display:flex;gap:18px;align-items:center}
+.content-nav a{font-size:11px;color:var(--muted);text-decoration:none}
+.content-nav a:hover{color:var(--text)}
+.content-hero{padding-bottom:42px;border-bottom:1px solid var(--line)}
+.content-hero .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.content-hero h1{font-size:clamp(42px,6vw,70px);line-height:1;letter-spacing:-.045em;margin:14px 0 18px;max-width:880px}
+.content-hero p{font-size:16px;line-height:1.7;color:#9aa4af;max-width:760px;margin:0}
+.content-note{margin-top:24px;border:1px solid var(--line);border-radius:10px;background:#0f1317;padding:16px 18px;font-size:11px;line-height:1.65;color:#a8b1bb}
+.content-section{padding:42px 0;border-bottom:1px solid var(--line)}
+.content-section h2{font-size:27px;letter-spacing:-.025em;margin:0 0 16px}
+.content-section h3{font-size:16px;margin:24px 0 9px}
+.content-section p,.content-section li{font-size:13px;line-height:1.75;color:#9aa4af}
+.content-section p{margin:0 0 14px}
+.content-section ul{margin:10px 0 0;padding-left:20px}
+.content-section strong{color:#e3e8ed}
+.content-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:18px}
+.content-card{border:1px solid var(--line);border-radius:10px;background:#0e1216;padding:18px}
+.content-card span{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-weight:800}
+.content-card strong{display:block;margin:10px 0 6px;font-size:14px}
+.content-card p{font-size:11px;margin:0}
+.content-cta{display:flex;gap:9px;margin-top:24px}
+.content-footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-top:28px;font-size:9px;color:#68727d}
+.content-footer nav{display:flex;gap:14px;flex-wrap:wrap}
+.content-footer a{color:#7e8995;text-decoration:none}
+.content-footer a:hover{color:#dbe1e7}
+.code-inline{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.94em;background:#151b22;border:1px solid var(--line);padding:1px 5px;border-radius:4px;color:#dce2e8}
+@media(max-width:680px){.content-shell{padding:36px 16px 70px}.content-top{margin-bottom:38px}.content-nav{gap:10px}.content-grid{grid-template-columns:1fr}.content-hero h1{font-size:42px}.content-hero p{font-size:14px}}
+\n\n/* Launch QA: keep controls usable in narrow desktop windows without forcing page scroll. */\n@media(min-width:881px){\n  .chart-toolbar{overflow-x:auto;scrollbar-width:thin;gap:8px}\n  .timeframes,.chart-actions{flex:0 0 auto}\n}\n@media(min-width:881px) and (max-width:1180px){\n  .terminal-view.active{grid-template-columns:170px minmax(380px,1fr) 255px}\n  .market-sidebar .sidebar-title-row{padding-left:10px;padding-right:10px}\n  .market-sidebar .asset-row{padding-left:8px;padding-right:8px}\n  .market-sidebar .asset-row small{max-width:95px}\n  .market-sidebar .asset-tabs{padding-left:6px;padding-right:6px}\n  .market-sidebar .asset-tabs button{font-size:7px;padding:0 2px}\n  .ticket-sidebar{font-size:92%}\n}\n@media(max-width:880px){\n  .chart-panel{height:min(480px,62vh)}\n}\n
