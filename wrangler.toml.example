@@ -1,0 +1,8 @@
+name = "tickrift"
+compatibility_date = "2026-09-22"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "MARKET_DB"
+database_name = "tickrift-market"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"

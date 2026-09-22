@@ -1,76 +1,71 @@
-# Tickrift — Production Beta
+# Tickrift v3 — shared simulated market
 
-Tickrift is a dark browser-based **paper trading and long-term investing simulator**. It uses virtual money only: no deposits, withdrawals, brokerage connection or real order execution.
+This build is a virtual-money market simulator. It does **not** place real orders and does not use real deposits or withdrawals.
 
-## Launch build highlights
+## What changed
 
-- One-screen desktop terminal: chart, open trades and close buttons remain visible together.
-- Separate **Trade** and **Invest** modes.
-- 50+ stocks plus crypto, global indices and ETFs/funds.
-- Candles, hollow candles, Heikin Ashi, OHLC bars, line and area charts.
-- 1m, 5m, 15m, 1h, 4h, 1D and 1W intervals.
-- Volume, SMA 20/50, EMA 20, VWAP, Bollinger Bands, RSI and MACD.
-- Custom candle colours, themes, grid/crosshair settings and zoom.
-- Long/short paper trades, market/limit/stop orders, simulated leverage, stop-loss, take-profit, trailing stop, fees and slippage.
-- Long-term holdings, average cost, allocation, recurring paper buys and portfolio P&L.
-- Open positions/orders dock, portfolio dashboard, journal and first-run tutorial.
-- Paper-account reset flow when buying power is exhausted.
-- Search Console verification meta tag included.
-- SEO landing content, crawlable learning pages, dynamic canonical URLs, robots.txt and sitemap.xml on Cloudflare Pages.
-- Privacy/Terms/Data Sources pages.
-- No Google Analytics or advertising trackers in this release.
-- Same-origin market-data API bridge for licensed provider data. API keys never appear in browser JavaScript.
+- One clock-synced synthetic market for every visitor instead of per-browser random prices.
+- The market keeps moving while a visitor is away because prices are derived from UTC time.
+- Optional global player-order flow using Cloudflare Pages Functions + D1. Paper buys/sells create deliberately tiny temporary pressure that decays over six hours.
+- Working 1m, 5m, 15m, 30m, 1h, 2h, 4h, 1D and 1W chart timeframes.
+- Stocks, crypto, meme coins, indices and ETFs.
+- Trade and Invest are order styles inside one simulator workspace rather than separate top-level products.
+- Open trades remain visible directly below the chart on desktop so they can be closed without scrolling the page.
+- Search Console verification tag included.
+- No Google Analytics in this build.
+- Static SEO guide pages for paper trading, stock simulation, crypto simulation and meme-coin simulation.
+- Dynamic `/sitemap.xml` and `/robots.txt` when deployed on Cloudflare Pages Functions.
 
-## Recommended production hosting
+## Deploy the basic site
 
-Keep the repository on GitHub, but deploy the website from that repository with **Cloudflare Pages**. The included `/functions` directory is a Cloudflare Pages Functions backend and handles:
+Upload the contents of this folder to the root of the repository. `index.html` must be at repository root, not inside another folder.
 
-- `/api/market/snapshot`
-- `/api/market/history`
-- dynamic `/robots.txt`
-- dynamic `/sitemap.xml`
-- canonical URL injection and basic security headers
+The basic static site works without a database. Prices are still shared/clock-synced, assuming visitors' device clocks are reasonably accurate. The player-flow effect will show as unavailable until the backend is configured.
 
-No build command is required for this static project. Use the repository root as the output directory.
+## Enable exact server clock + global player flow on Cloudflare Pages
 
-## Enable provider-linked market data
+1. Create a Cloudflare D1 database, for example `tickrift-market`.
+2. Run the SQL in `schema.sql` against that database.
+3. In the Pages project, add a D1 binding with variable name exactly `MARKET_DB`.
+4. Redeploy the Pages project.
+5. Open Tickrift. The header should change from `SHARED SIMULATION` to `GLOBAL FLOW ONLINE` after the API responds.
 
-The site works immediately in clearly labelled `SIMULATED` mode. To enable provider-linked data, add these Cloudflare Pages environment values:
+The API endpoint is `/api/market`.
 
-- Secret: `TWELVE_DATA_API_KEY`
-- Variable: `MARKET_DATA_MODE` = `live` or `delayed`
+## Global player impact model
 
-Use a provider plan and exchange/data entitlements that permit your intended public/commercial display. The repository deliberately contains **no API key**.
+A filled virtual order sends only:
 
-If the market API is unavailable or a symbol is not returned, Tickrift leaves that instrument as `SIMULATED` rather than presenting generated prices as live.
+- synthetic instrument symbol
+- `buy` or `sell`
+- paper notional, capped server-side
+- a random idempotency ID
 
-See `LIVE_DATA.md` for details.
+A full $100,000 paper order changes the global pressure by approximately:
 
-## SEO/Search Console
+- stocks / indices / ETFs: 0.00025%
+- major crypto: 0.0004%
+- meme coins: 0.001%
 
-The Google Search Console verification tag supplied for this project is already in the homepage and content pages. On Cloudflare Pages, `/sitemap.xml` automatically uses the deployed domain, so there is no hard-coded placeholder domain to fix.
+The pressure decays to zero over six hours. This means one visitor should barely move a price, while a large crowd leaning the same way can become visible.
 
-Useful indexable pages:
+This is a game mechanic, **not** an attempt to model real market impact.
 
-- `/`
-- `/learn/paper-trading/`
-- `/learn/long-term-investing/`
-- `/data-sources/`
-- `/privacy/`
-- `/terms/`
+## SEO
 
-After the production domain is live, submit `https://YOUR-DOMAIN/sitemap.xml` in Search Console and use URL Inspection on the homepage.
+The Search Console verification meta tag is already in the homepage and content pages. On Cloudflare Pages, `/sitemap.xml` is created dynamically from the actual domain, so no hard-coded domain is required.
 
-## Local testing
+After launch:
 
-Serve the directory over HTTP rather than opening the file directly:
+1. Add the property in Google Search Console.
+2. Submit `/sitemap.xml`.
+3. Use URL Inspection on the homepage and the main learning pages.
+4. Do not generate hundreds of thin keyword pages. Add genuinely useful pages instead.
 
-```bash
-python3 -m http.server 8080
-```
+## Important production notes
 
-Then open `http://localhost:8080/`. The Cloudflare Functions do not run in a basic local static server, so market prices will correctly remain simulated.
-
-## Important product boundary
-
-Tickrift is a simulator. Virtual balances and simulated profit/loss have no monetary value. It is not a brokerage or personalized investment-advice service.
+- The current market is synthetic. Do not describe it as live exchange data.
+- If real market data is added later, review the provider's public/commercial display licence first.
+- `privacy/` and `terms/` are launch templates. Before commercial use, add the actual operator/contact information and review the final legal setup.
+- The player-flow API intentionally accepts only symbols that exist in Tickrift and caps paper notional.
+- For a large public launch, add stronger abuse/rate controls to the shared-flow endpoint.
