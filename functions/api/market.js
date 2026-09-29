@@ -9,7 +9,7 @@ const MEME = new Set(["DOGE","SHIB","PEPE","PUMP","PENGU","BONK","WIF","FLOKI","
 const CRYPTO = new Set(["BTC","ETH","SOL","XRP","BNB","ADA","AVAX","LINK","SUI","HYPE","TON","DOT"]);
 const DECAY_MS = 6 * 60 * 60 * 1000;
 
-function json(data,status=200){return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}})}
+function json(data,status=200){return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","x-robots-tag":"noindex, nofollow"}})}
 function cleanSymbols(raw){return [...new Set(String(raw||"").split(",").map(x=>x.trim().toUpperCase()).filter(x=>ALLOWED.has(x)))].slice(0,150)}
 function decayed(impact,updatedAt,now){const factor=Math.max(0,1-(Math.max(0,now-updatedAt)/DECAY_MS));return impact*factor}
 function impactPerFullOrder(symbol){if(MEME.has(symbol))return 0.000010;if(CRYPTO.has(symbol))return 0.000004;return 0.0000025}

@@ -1,6 +1,6 @@
 # Tickrift v3 — shared simulated market
 
-This build is a virtual-money market simulator. It does **not** place real orders and does not use real deposits or withdrawals.
+This build is a virtual-money market simulator. The homepage bundles its core CSS and simulator JavaScript so the main experience remains resilient if an auxiliary static asset is accidentally omitted. It does **not** place real orders and does not use real deposits or withdrawals.
 
 ## What changed
 
@@ -12,7 +12,8 @@ This build is a virtual-money market simulator. It does **not** place real order
 - Trade and Invest are order styles inside one simulator workspace rather than separate top-level products.
 - Open trades remain visible directly below the chart on desktop so they can be closed without scrolling the page.
 - Search Console verification tag included.
-- No Google Analytics in this build.
+- Chart background can be changed independently from bullish/bearish candle colors.
+- Optional Google Analytics (G-PK72BHMES7) is loaded only after analytics consent.
 - Static SEO guide pages for paper trading, stock simulation, crypto simulation and meme-coin simulation.
 - Dynamic `/sitemap.xml` and `/robots.txt` when deployed on Cloudflare Pages Functions.
 

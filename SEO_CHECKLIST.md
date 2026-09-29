@@ -6,12 +6,12 @@ Included in this build:
 - descriptive homepage title and meta description
 - crawlable HTML links to guide pages
 - semantic text content in the initial HTML instead of hiding all useful text inside canvas or JavaScript
-- WebApplication structured data on the homepage
+- WebApplication + WebSite structured data on the homepage
 - dedicated, useful pages for paper trading, stock simulation, crypto simulation and meme-coin simulation
 - dynamic `/sitemap.xml` on Cloudflare Pages
 - dynamic `/robots.txt` with sitemap link on Cloudflare Pages
 - Open Graph / social preview metadata
-- no Google Analytics
+- optional Google Analytics via explicit consent (measurement ID G-PK72BHMES7)
 
 After deployment:
 

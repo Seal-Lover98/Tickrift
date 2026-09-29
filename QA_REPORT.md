@@ -1,28 +1,17 @@
-# Tickrift v3 QA report
+# Tickrift v4 stability QA
 
-Checked on 2026-09-22.
+Checks run on the release package:
 
-## Automated browser checks
+- Node syntax validation: `app.js`, `analytics.js`, all Pages Functions — passed.
+- CSS parsing with tinycss2 — 0 parse errors.
+- Every explicit `$("id")` reference in `app.js` exists in the homepage HTML — passed.
+- Homepage local asset-reference check — no missing local HTML/CSS/JS/image references.
+- DOM smoke test with a browser-DOM mock — app boots without a startup exception; Open simulator, timeframe, and Trade/Invest mode click paths update state.
+- Homepage bundles a copy of core CSS and core simulator JS, while keeping `styles.css`/`app.js` as maintainable source files.
+- Hero chart uses an explicit NVDA candlestick canvas with a delayed/resize redraw path.
+- Open positions show P&L amount and return percentage; risk summary shows configured SL/TP/trailing values.
+- Chart background is independently configurable from bullish/bearish candle colors.
+- SEO tags checked: title, description, robots, canonical, Search Console verification, Open Graph, WebSite/WebApplication structured data.
+- Cloudflare Pages Functions remain under `/functions` at repository root.
 
-- Two independent browser pages at the same mocked UTC timestamp showed the exact same NVDA simulated price.
-- Advancing the mocked clock by four hours produced a different price without needing a prior browser session.
-- 1h, 2h, 4h, 1D and 1W each rendered a different chart canvas.
-- A paper trade opened, reduced available paper cash, appeared in Open trades, and could be closed.
-- Invest mode created a long-term holding.
-- Meme category loaded 12 separate simulated meme-coin instruments.
-- Desktop simulator viewport had no document-level vertical scroll; the open-trades panel stayed visible below the chart.
-- Mobile layout had no horizontal overflow.
-- No JavaScript page errors were observed in the mocked offline-backend test.
-
-## Static checks
-
-- `app.js` passes `node --check`.
-- Cloudflare Functions pass `node --check`.
-- No duplicate HTML IDs were found.
-- All DOM IDs referenced through the app's `$()` helper exist in `index.html`.
-- Local file references used by the homepage resolve inside the project.
-- Search Console verification meta tag is present.
-
-## Backend note
-
-The global crowd effect cannot exist across visitors on a purely static GitHub Pages deployment. The same clock-synced base market works statically, but shared player impact needs the included Cloudflare Pages Function plus a D1 database binding named `MARKET_DB`.
+Note: a full production-browser visual pass still needs to be performed against the live Pages URL after the GitHub deployment, because local headless browser navigation is restricted in the build environment used for this package.

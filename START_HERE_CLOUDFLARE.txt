@@ -1,27 +1,38 @@
-TICKRIFT – DEPLOY THIS VERSION
+TICKRIFT — CLOUDFLARE PAGES
 
-IMPORTANT:
-Upload the CONTENTS of this folder into the ROOT of your GitHub repository.
-Do NOT upload the outer folder itself.
+This repository is a static HTML/CSS/JS Cloudflare Pages site with a /functions directory for Pages Functions.
 
-Your GitHub repository root should directly contain:
-index.html
-app.js
-styles.css
-analytics.js
-config.js
-functions/
-learn/
-privacy/
-terms/
-data-sources/
-...
+GitHub repository layout (important):
+- index.html must be directly in the repository root.
+- app.js and styles.css are kept for maintainability; the homepage also contains bundled copies so the main simulator still works if an auxiliary asset is accidentally missed during an upload.
+- functions/ must be directly in the repository root.
 
-After committing to main, Cloudflare Pages will automatically deploy the new commit.
+Cloudflare Pages → Settings → Builds & deployments:
+- Production branch: main
+- Framework preset: none
+- Build command: blank for this no-build site (Cloudflare also documents `exit 0` for no-preset deployments)
+- Build output directory: .
+- Root directory: blank
 
-Cloudflare Pages settings for this static site:
-Production branch: main
-Framework preset: None
-Build command: blank (or exit 0)
-Build output directory: .
-Root directory: blank
+After each GitHub commit, the connected Pages project should automatically create a new deployment. Wait for Success before testing the production URL.
+
+Pages Functions:
+- /functions/api/market.js → /api/market
+- /functions/robots.txt.js → /robots.txt
+- /functions/sitemap.xml.js → /sitemap.xml
+- /functions/_middleware.js → response security headers
+
+Optional global crowd-flow backend:
+1. Create a Cloudflare D1 database.
+2. Run schema.sql.
+3. Bind it to the Pages project with variable name exactly MARKET_DB.
+4. Redeploy.
+
+The simulator itself works without D1. Without the binding, the market falls back to the same clock-synchronised synthetic base price for everyone; shared player-order impact is unavailable.
+
+SEO after deploy:
+- Verify the domain in Google Search Console.
+- Submit sitemap.xml.
+- Inspect / in URL Inspection.
+- The homepage includes the supplied Google Search Console verification tag.
+- Google Analytics is optional and only loads after user consent.

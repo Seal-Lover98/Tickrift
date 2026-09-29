@@ -165,20 +165,51 @@
   function renderInstrument(){const a=BY_SYMBOL.get(state.selected);if(!a)return;const p=priceAt(a),ch=dayChange(a),day=candleSeries(a,"1D",2).at(-1);$("symbolLabel").textContent=a.symbol;$("nameLabel").textContent=a.name;$("assetTypeBadge").textContent=a.category==="memecoins"?"MEME":a.category.slice(0,-1).toUpperCase();$("exchangeLabel").textContent=a.exchange;$("marketStateLabel").textContent="Shared synthetic market";$("sourceBadge").textContent=globalMarket.available?"GLOBAL SIM":"SHARED SIM";$("priceLabel").textContent=fmtPrice(p);$("changeLabel").textContent=fmtPct(ch);$("changeLabel").className=ch>=0?"up":"down";$("openLabel").textContent=fmtPrice(day.o);$("highLabel").textContent=fmtPrice(day.h);$("lowLabel").textContent=fmtPrice(day.l);$("volumeLabel").textContent=day.v.toLocaleString("en-US",{notation:"compact"});$("favoriteAsset").textContent=state.watchlist.includes(a.symbol)?"★":"☆";$("move24Stat").textContent=fmtPct(ch);const imp=currentImpact(a.symbol);$("flowStat").textContent=globalMarket.available?`${imp>=0?"+":""}${(imp*100).toFixed(4)}%`:"offline";$("updatedStat").textContent=new Date(marketNow()).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});}
 
   function drawChart(){
-    const canvas=$("chartCanvas"),stage=$("chartStage");if(!canvas||!stage||!chartData.length)return;const rect=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);canvas.width=Math.max(1,Math.floor(rect.width*dpr));canvas.height=Math.max(1,Math.floor(rect.height*dpr));const ctx=canvas.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);const w=rect.width,h=rect.height;ctx.clearRect(0,0,w,h);ctx.fillStyle=settings.chartBg||"#0a0e13";ctx.fillRect(0,0,w,h);stage.style.background=settings.chartBg||"#0a0e13";
-    const pad={l:12,r:64,t:10,b:23};const pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;const vals=chartData.flatMap(c=>[c.h,c.l]);let min=Math.min(...vals),max=Math.max(...vals);const range=Math.max(1e-9,max-min);min-=range*.08;max+=range*.08;const y=v=>pad.t+(max-v)/(max-min)*ph;const x=i=>pad.l+(i+.5)/chartData.length*pw;const cw=Math.max(1,pw/chartData.length*.64);
-    if(settings.grid){ctx.strokeStyle="rgba(110,130,150,.12)";ctx.lineWidth=1;for(let i=0;i<=5;i++){const yy=pad.t+ph*i/5;ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(pad.l+pw,yy);ctx.stroke()}for(let i=0;i<=6;i++){const xx=pad.l+pw*i/6;ctx.beginPath();ctx.moveTo(xx,pad.t);ctx.lineTo(xx,pad.t+ph);ctx.stroke()}}
-    ctx.font="9px system-ui";ctx.fillStyle="#718092";ctx.textAlign="left";for(let i=0;i<=5;i++){const v=max-(max-min)*i/5;ctx.fillText(formatAxis(v),pad.l+pw+7,pad.t+ph*i/5+3)}
+    const canvas=$("chartCanvas"),stage=$("chartStage");
+    if(!canvas||!stage||!chartData.length)return;
+    const rect=stage.getBoundingClientRect();
+    const w=Math.max(240,Math.round(rect.width||stage.clientWidth||600));
+    const h=Math.max(220,Math.round(rect.height||stage.clientHeight||360));
+    const dpr=Math.min(2,window.devicePixelRatio||1);
+    canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);
+    canvas.style.width="100%";canvas.style.height="100%";
+    const ctx=canvas.getContext("2d");
+    if(!ctx)return;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,w,h);
+    const bg=settings.chartBg||"#0a0e13";
+    ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);stage.style.background=bg;
+    const pad={l:12,r:64,t:10,b:23},pw=Math.max(80,w-pad.l-pad.r),ph=Math.max(60,h-pad.t-pad.b);
+    const vals=chartData.flatMap(c=>[c.h,c.l]);
+    let min=Math.min(...vals),max=Math.max(...vals);const range=Math.max(1e-9,max-min);min-=range*.08;max+=range*.08;
+    const y=v=>pad.t+(max-v)/(max-min)*ph;const x=i=>pad.l+(i+.5)/chartData.length*pw;const cw=Math.max(1,pw/chartData.length*.64);
+    if(settings.grid){
+      ctx.strokeStyle="rgba(110,130,150,.12)";ctx.lineWidth=1;
+      for(let i=0;i<=5;i++){const yy=pad.t+ph*i/5;ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(pad.l+pw,yy);ctx.stroke()}
+      for(let i=0;i<=6;i++){const xx=pad.l+pw*i/6;ctx.beginPath();ctx.moveTo(xx,pad.t);ctx.lineTo(xx,pad.t+ph);ctx.stroke()}
+    }
+    ctx.font="9px system-ui";ctx.fillStyle="#718092";ctx.textAlign="left";
+    for(let i=0;i<=5;i++){const v=max-(max-min)*i/5;ctx.fillText(formatAxis(v),pad.l+pw+7,pad.t+ph*i/5+3)}
     const type=settings.chartType;let series=chartData;
     if(type==="heikin"){series=[];let prevO=chartData[0].o,prevC=chartData[0].c;for(const c of chartData){const hc=(c.o+c.h+c.l+c.c)/4,ho=(prevO+prevC)/2,hh=Math.max(c.h,ho,hc),hl=Math.min(c.l,ho,hc);series.push({...c,o:ho,h:hh,l:hl,c:hc});prevO=ho;prevC=hc}}
     if(type==="line"||type==="area"){
-      ctx.beginPath();series.forEach((c,i)=>{const xx=x(i),yy=y(c.c);i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)});ctx.strokeStyle=settings.upColor;ctx.lineWidth=1.7;ctx.stroke();if(type==="area"){ctx.lineTo(x(series.length-1),pad.t+ph);ctx.lineTo(x(0),pad.t+ph);ctx.closePath();const g=ctx.createLinearGradient(0,pad.t,0,pad.t+ph);g.addColorStop(0,hexAlpha(settings.upColor,.24));g.addColorStop(1,hexAlpha(settings.upColor,0));ctx.fillStyle=g;ctx.fill()}
+      ctx.beginPath();series.forEach((c,i)=>{const xx=x(i),yy=y(c.c);i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)});ctx.strokeStyle=settings.upColor;ctx.lineWidth=1.7;ctx.stroke();
+      if(type==="area"){ctx.lineTo(x(series.length-1),pad.t+ph);ctx.lineTo(x(0),pad.t+ph);ctx.closePath();const g=ctx.createLinearGradient(0,pad.t,0,pad.t+ph);g.addColorStop(0,hexAlpha(settings.upColor,.24));g.addColorStop(1,hexAlpha(settings.upColor,0));ctx.fillStyle=g;ctx.fill()}
     } else {
-      series.forEach((c,i)=>{const up=c.c>=c.o,col=up?settings.upColor:settings.downColor,xx=x(i),yo=y(c.o),yc=y(c.c);ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx,y(c.h));ctx.lineTo(xx,y(c.l));ctx.stroke();if(type==="bars"){ctx.beginPath();ctx.moveTo(xx-cw*.45,yo);ctx.lineTo(xx,yo);ctx.lineTo(xx,yc);ctx.lineTo(xx+cw*.45,yc);ctx.stroke()}else{const top=Math.min(yo,yc),bh=Math.max(1,Math.abs(yc-yo));if(type==="hollow"&&up){ctx.strokeRect(xx-cw/2,top,cw,bh)}else ctx.fillRect(xx-cw/2,top,cw,bh)}})
+      series.forEach((c,i)=>{
+        const up=c.c>=c.o,col=up?settings.upColor:settings.downColor,xx=x(i),yo=y(c.o),yc=y(c.c);
+        ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx,y(c.h));ctx.lineTo(xx,y(c.l));ctx.stroke();
+        if(type==="bars"){ctx.beginPath();ctx.moveTo(xx-cw*.45,yo);ctx.lineTo(xx,yo);ctx.lineTo(xx,yc);ctx.lineTo(xx+cw*.45,yc);ctx.stroke()}
+        else {const top=Math.min(yo,yc),bh=Math.max(1,Math.abs(yc-yo));if(type==="hollow"){ctx.strokeRect(xx-cw/2,top,cw,bh)}else ctx.fillRect(xx-cw/2,top,cw,bh)}
+      });
     }
-    if(settings.overlay!=="none"){const period=settings.overlay.includes("50")?50:20;const ema=settings.overlay.startsWith("ema");const arr=ema?emaValues(series.map(c=>c.c),period):smaValues(series.map(c=>c.c),period);ctx.beginPath();let started=false;arr.forEach((v,i)=>{if(v==null)return;const xx=x(i),yy=y(v);started?ctx.lineTo(xx,yy):(ctx.moveTo(xx,yy),started=true)});ctx.strokeStyle="#69a7ff";ctx.lineWidth=1.2;ctx.stroke()}
-    const last=series.at(-1);ctx.strokeStyle="rgba(216,255,114,.35)";ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(pad.l,y(last.c));ctx.lineTo(pad.l+pw,y(last.c));ctx.stroke();ctx.setLineDash([]);
-    const firstDate=new Date(series[0].t),lastDate=new Date(series.at(-1).t);ctx.fillStyle="#647181";ctx.textAlign="left";ctx.fillText(formatTime(firstDate,state.timeframe),pad.l,h-7);ctx.textAlign="right";ctx.fillText(formatTime(lastDate,state.timeframe),pad.l+pw,h-7);
+    if(settings.overlay!=="none"){
+      const period=settings.overlay.includes("50")?50:20;const ema=settings.overlay.startsWith("ema");const arr=ema?emaValues(series.map(c=>c.c),period):smaValues(series.map(c=>c.c),period);ctx.beginPath();let started=false;
+      arr.forEach((v,i)=>{if(v==null)return;const xx=x(i),yy=y(v);started?ctx.lineTo(xx,yy):(ctx.moveTo(xx,yy),started=true)});ctx.strokeStyle="#69a7ff";ctx.lineWidth=1.2;ctx.stroke();
+    }
+    const last=series.at(-1);
+    ctx.strokeStyle="rgba(216,255,114,.35)";ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(pad.l,y(last.c));ctx.lineTo(pad.l+pw,y(last.c));ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="#647181";ctx.textAlign="left";ctx.fillText(formatTime(new Date(series[0].t),state.timeframe),pad.l,h-7);ctx.textAlign="right";ctx.fillText(formatTime(new Date(last.t),state.timeframe),pad.l+pw,h-7);
     canvas._chartMap={pad,pw,ph,min,max,x,y,series};
   }
   function formatAxis(v){if(v>=1000)return v.toLocaleString("en-US",{maximumFractionDigits:0});if(v>=1)return v.toFixed(2);return v.toPrecision(3)}
@@ -221,12 +252,35 @@
   }
 
   function renderAccount(){const s=portfolioSnapshot();$("headerEquity").textContent=fmtMoney(s.equity);$("equityMetric").textContent=fmtMoney(s.equity);$("cashMetric").textContent=fmtMoney(state.cash);$("unrealizedMetric").textContent=fmtMoney(s.unrealized);$("unrealizedMetric").className=s.unrealized>=0?"up":"down";$("realizedMetric").textContent=fmtMoney(state.realized);$("realizedMetric").className=state.realized>=0?"up":"down";$("reservedMetric").textContent=fmtMoney(s.reserved);if(s.equity<=5&&state.cash<=5&&state.positions.length===0&&Object.keys(state.holdings).length===0)$("depletedOverlay").classList.remove("hidden")}
-  function renderActivity(){const pane=state.activityPane,host=$("activityContent");$("positionCount").textContent=state.positions.length;$("holdingCount").textContent=Object.keys(state.holdings).length;$("orderCount").textContent=state.orders.length;$("historyCount").textContent=Math.min(99,state.history.length);qsa("#activityTabs button").forEach(b=>b.classList.toggle("active",b.dataset.pane===pane));let html="";
-    if(pane==="positions"){if(!state.positions.length)html='<div class="empty-state">No open paper trades. Use the order ticket to open a paper position.</div>';else html='<table class="activity-table"><thead><tr><th>Symbol</th><th>Side</th><th>Entry</th><th>Now</th><th>Qty</th><th class="right">P&amp;L</th><th>Risk</th><th></th></tr></thead><tbody>'+state.positions.map(p=>{const px=priceAt(BY_SYMBOL.get(p.symbol)),pnl=(p.side==="long"?px-p.entry:p.entry-px)*p.qty,ret=p.side==="long"?(px/p.entry-1):(p.entry/px-1),risk=[p.slPct?`SL ${fmtPct(-p.slPct)}`:'',p.tpPct?`TP ${fmtPct(p.tpPct)}`:'',p.trailPct?`Trail ${fmtPct(p.trailPct)}`:''].filter(Boolean).join(' · ')||'—';return `<tr><td><b>${p.symbol}</b></td><td class="${p.side==="long"?"up":"down"}">${p.side}</td><td>${fmtPrice(p.entry)}</td><td>${fmtPrice(px)}</td><td>${fmtQty(p.qty)}</td><td class="right ${pnl>=0?"up":"down"}"><span class="pnl-primary">${fmtMoney(pnl)}</span><span class="pnl-secondary">${fmtPct(ret)}</span></td><td class="risk-summary">${risk}</td><td class="right"><button data-close="${p.id}">Close</button></td></tr>`}).join("")+'</tbody></table>'}
-    if(pane==="holdings"){const entries=Object.entries(state.holdings);if(!entries.length)html='<div class="empty-state">No long-term holdings yet.</div>';else html='<table class="activity-table"><thead><tr><th>Symbol</th><th>Qty</th><th>Avg cost</th><th>Now</th><th class="right">Value</th><th class="right">P&amp;L</th></tr></thead><tbody>'+entries.map(([s,h])=>{const px=priceAt(BY_SYMBOL.get(s)),pnl=(px-h.avg)*h.qty,ret=px/h.avg-1;return `<tr><td><b>${s}</b></td><td>${fmtQty(h.qty)}</td><td>${fmtPrice(h.avg)}</td><td>${fmtPrice(px)}</td><td class="right">${fmtMoney(px*h.qty)}</td><td class="right ${pnl>=0?"up":"down"}"><span class="pnl-primary">${fmtMoney(pnl)}</span><span class="pnl-secondary">${fmtPct(ret)}</span></td></tr>`}).join("")+'</tbody></table>'}
-    if(pane==="orders"){if(!state.orders.length)html='<div class="empty-state">No pending paper orders.</div>';else html='<table class="activity-table"><thead><tr><th>Symbol</th><th>Mode</th><th>Side</th><th>Type</th><th>Trigger</th><th></th></tr></thead><tbody>'+state.orders.map(o=>`<tr><td><b>${o.symbol}</b></td><td>${o.mode}</td><td>${o.side}</td><td>${o.type}</td><td>${fmtPrice(o.trigger)}</td><td class="right"><button data-cancel="${o.id}">Cancel</button></td></tr>`).join("")+'</tbody></table>'}
-    if(pane==="history"){if(!state.history.length)html='<div class="empty-state">No activity yet.</div>';else html='<table class="activity-table"><thead><tr><th>Time</th><th>Action</th><th>Symbol</th><th>Price</th><th class="right">Amount</th></tr></thead><tbody>'+state.history.slice(0,120).map(h=>`<tr><td>${new Date(h.t).toLocaleString()}</td><td>${h.kind}</td><td><b>${h.symbol}</b></td><td>${fmtPrice(h.price)}</td><td class="right">${fmtMoney(h.amount||0)}</td></tr>`).join("")+'</tbody></table>'}
-    host.innerHTML=html;qsa("[data-close]",host).forEach(b=>b.addEventListener("click",()=>closePosition(b.dataset.close)));qsa("[data-cancel]",host).forEach(b=>b.addEventListener("click",()=>cancelOrder(b.dataset.cancel)));
+  function renderActivity(){
+    const pane=state.activityPane,host=$("activityContent");
+    $("positionCount").textContent=state.positions.length;$("holdingCount").textContent=Object.keys(state.holdings).length;$("orderCount").textContent=state.orders.length;$("historyCount").textContent=Math.min(99,state.history.length);
+    qsa("#activityTabs button").forEach(b=>b.classList.toggle("active",b.dataset.pane===pane));
+    let html="";
+    if(pane==="positions"){
+      if(!state.positions.length)html='<div class="empty-state">No open paper trades. Use the order ticket to open a paper position.</div>';
+      else html='<table class="activity-table"><thead><tr><th>Symbol</th><th>Side</th><th>Entry</th><th>Now</th><th>Qty</th><th class="right">P&amp;L</th><th>Risk</th><th></th></tr></thead><tbody>'+state.positions.map(p=>{
+        const a=BY_SYMBOL.get(p.symbol),px=priceAt(a),pnl=(p.side==="long"?px-p.entry:p.entry-px)*p.qty,ret=p.side==="long"?(px/p.entry-1):(p.entry/px-1);
+        const risk=[p.slPct!=null?`SL ${fmtPct(-p.slPct)}`:'',p.tpPct!=null?`TP ${fmtPct(p.tpPct)}`:'',p.trailPct!=null?`Trail ${fmtPct(p.trailPct)}`:''].filter(Boolean).join(' · ')||'None';
+        return `<tr><td><b>${p.symbol}</b></td><td class="${p.side==="long"?"up":"down"}">${p.side}</td><td>${fmtPrice(p.entry)}</td><td>${fmtPrice(px)}</td><td>${fmtQty(p.qty)}</td><td class="right ${pnl>=0?"up":"down"}"><span class="pnl-primary">${fmtMoney(pnl)}</span><span class="pnl-secondary">${fmtPct(ret)}</span></td><td class="risk-summary">${risk}</td><td class="right"><button data-close="${p.id}">Close</button></td></tr>`;
+      }).join('')+'</tbody></table>';
+    }
+    if(pane==="holdings"){
+      const entries=Object.entries(state.holdings);
+      if(!entries.length)html='<div class="empty-state">No long-term holdings yet.</div>';
+      else html='<table class="activity-table"><thead><tr><th>Symbol</th><th>Qty</th><th>Avg cost</th><th>Now</th><th class="right">Value</th><th class="right">P&amp;L</th></tr></thead><tbody>'+entries.map(([s,h])=>{const px=priceAt(BY_SYMBOL.get(s)),pnl=(px-h.avg)*h.qty,ret=px/h.avg-1;return `<tr><td><b>${s}</b></td><td>${fmtQty(h.qty)}</td><td>${fmtPrice(h.avg)}</td><td>${fmtPrice(px)}</td><td class="right">${fmtMoney(px*h.qty)}</td><td class="right ${pnl>=0?"up":"down"}"><span class="pnl-primary">${fmtMoney(pnl)}</span><span class="pnl-secondary">${fmtPct(ret)}</span></td></tr>`}).join('')+'</tbody></table>';
+    }
+    if(pane==="orders"){
+      if(!state.orders.length)html='<div class="empty-state">No pending paper orders.</div>';
+      else html='<table class="activity-table"><thead><tr><th>Symbol</th><th>Mode</th><th>Side</th><th>Type</th><th>Trigger</th><th></th></tr></thead><tbody>'+state.orders.map(o=>`<tr><td><b>${o.symbol}</b></td><td>${o.mode}</td><td>${o.side}</td><td>${o.type}</td><td>${fmtPrice(o.trigger)}</td><td class="right"><button data-cancel="${o.id}">Cancel</button></td></tr>`).join('')+'</tbody></table>';
+    }
+    if(pane==="history"){
+      if(!state.history.length)html='<div class="empty-state">No activity yet.</div>';
+      else html='<table class="activity-table"><thead><tr><th>Time</th><th>Action</th><th>Symbol</th><th>Price</th><th class="right">Amount</th></tr></thead><tbody>'+state.history.slice(0,120).map(h=>`<tr><td>${new Date(h.t).toLocaleString()}</td><td>${h.kind}</td><td><b>${h.symbol}</b></td><td>${fmtPrice(h.price)}</td><td class="right">${fmtMoney(h.amount||0)}</td></tr>`).join('')+'</tbody></table>';
+    }
+    host.innerHTML=html;
+    qsa("[data-close]",host).forEach(b=>b.addEventListener("click",()=>closePosition(b.dataset.close)));
+    qsa("[data-cancel]",host).forEach(b=>b.addEventListener("click",()=>cancelOrder(b.dataset.cancel)));
   }
   qsa("#activityTabs button").forEach(b=>b.addEventListener("click",()=>{state.activityPane=b.dataset.pane;save();renderActivity()}));
 
@@ -234,8 +288,27 @@
   function drawAllocation(){const c=$("allocationCanvas"),r=c.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);c.width=Math.max(1,r.width*dpr);c.height=Math.max(1,r.height*dpr);const ctx=c.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,r.width,r.height);const vals=Object.entries(state.holdings).map(([s,h])=>({s,v:h.qty*priceAt(BY_SYMBOL.get(s))})).filter(x=>x.v>0),total=vals.reduce((a,b)=>a+b.v,0);if(!total){ctx.fillStyle="#647181";ctx.font="11px system-ui";ctx.fillText("No holdings",40,80);$("allocationLegend").innerHTML="";return}let a0=-Math.PI/2;const cols=["#2fc98f","#69a7ff","#d8ff72","#ef6574","#a28cff","#f3b55a","#5fd1d6"];vals.forEach((x,i)=>{const a1=a0+x.v/total*Math.PI*2;ctx.beginPath();ctx.moveTo(r.width/2,r.height/2);ctx.arc(r.width/2,r.height/2,Math.min(r.width,r.height)*.42,a0,a1);ctx.closePath();ctx.fillStyle=cols[i%cols.length];ctx.fill();a0=a1});ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(r.width/2,r.height/2,Math.min(r.width,r.height)*.25,0,Math.PI*2);ctx.fill();ctx.globalCompositeOperation="source-over";$("allocationLegend").innerHTML=vals.slice(0,8).map((x,i)=>`<div><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cols[i%cols.length]};margin-right:6px"></span>${x.s} <b>${(x.v/total*100).toFixed(1)}%</b></div>`).join("")}
   function drawEquity(){const c=$("equityCanvas"),r=c.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);c.width=Math.max(1,r.width*dpr);c.height=Math.max(1,r.height*dpr);const ctx=c.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,r.width,r.height);const pts=state.equityHistory.slice(-100);if(pts.length<2)return;const mn=Math.min(...pts.map(p=>p.v)),mx=Math.max(...pts.map(p=>p.v)),rg=Math.max(1,mx-mn),x=i=>10+i/(pts.length-1)*(r.width-20),y=v=>10+(mx-v)/rg*(r.height-20);ctx.strokeStyle="#2fc98f";ctx.lineWidth=1.6;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(x(i),y(p.v)):ctx.moveTo(x(i),y(p.v)));ctx.stroke()}
 
-  function renderHero(){const picks=["NVDA","AAPL","BTC","ETH","DOGE","SPX"];$("heroMarketList").innerHTML=picks.map(s=>{const a=BY_SYMBOL.get(s),ch=dayChange(a);return `<div class="hero-market-row"><div><span>${s}</span><small>${a.name}</small></div><div><b>${fmtPrice(priceAt(a))}</b><small class="${ch>=0?"up":"down"}">${fmtPct(ch)}</small></div></div>`}).join("");$("heroSourceBadge").textContent=globalMarket.available?"GLOBAL FLOW":"CLOCK-SYNCED";drawHero()}
-  function drawHero(){const c=$("heroChart");if(!c)return;const r=c.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);c.width=Math.max(1,r.width*dpr);c.height=Math.max(1,r.height*dpr);const ctx=c.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,r.width,r.height);ctx.fillStyle=settings.chartBg||"#0a0e13";ctx.fillRect(0,0,r.width,r.height);const data=candleSeries(BY_SYMBOL.get("NVDA"),"15m",70),mn=Math.min(...data.map(x=>x.l)),mx=Math.max(...data.map(x=>x.h)),rg=Math.max(1e-9,mx-mn),x=i=>10+i/(data.length-1)*(r.width-20),y=v=>10+(mx-v)/rg*(r.height-20);ctx.strokeStyle=settings.upColor;ctx.lineWidth=1.4;ctx.beginPath();data.forEach((p,i)=>i?ctx.lineTo(x(i),y(p.c)):ctx.moveTo(x(i),y(p.c)));ctx.stroke()}
+  function renderHero(){
+    const picks=["NVDA","AAPL","BTC","ETH","DOGE","SPX"];
+    $("heroMarketList").innerHTML=picks.map(s=>{const a=BY_SYMBOL.get(s),ch=dayChange(a);return `<div class="hero-market-row"><div><span>${s}</span><small>${a.name}</small></div><div><b>${fmtPrice(priceAt(a))}</b><small class="${ch>=0?"up":"down"}">${fmtPct(ch)}</small></div></div>`}).join("");
+    $("heroSourceBadge").textContent=globalMarket.available?"GLOBAL FLOW":"CLOCK-SYNCED";
+    $("heroSelected").textContent=`${state.selected} · ${BY_SYMBOL.get(state.selected)?.name||"NVIDIA"}`;
+    drawHero();
+  }
+  function drawHero(){
+    const c=$("heroChart");if(!c)return;const wrap=c.closest(".hero-chart-wrap");
+    const rect=wrap?wrap.getBoundingClientRect():c.getBoundingClientRect();
+    const w=Math.max(320,Math.round(rect.width||c.clientWidth||520)),h=Math.max(180,Math.round(rect.height||c.clientHeight||220)),dpr=Math.min(2,window.devicePixelRatio||1);
+    c.width=Math.floor(w*dpr);c.height=Math.floor(h*dpr);c.style.width="100%";c.style.height="100%";
+    const ctx=c.getContext("2d");if(!ctx)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    const bg=settings.chartBg||"#0a0e13";ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+    const data=candleSeries(BY_SYMBOL.get("NVDA"),"15m",72),vals=data.flatMap(x=>[x.h,x.l]);let min=Math.min(...vals),max=Math.max(...vals),rg=Math.max(1e-9,max-min);min-=rg*.08;max+=rg*.08;
+    const pad={l:8,r:10,t:8,b:18},pw=w-pad.l-pad.r,ph=h-pad.t-pad.b,x=i=>pad.l+(i+.5)/data.length*pw,y=v=>pad.t+(max-v)/(max-min)*ph,cw=Math.max(2,pw/data.length*.55);
+    if(settings.grid){ctx.strokeStyle="rgba(110,130,150,.11)";ctx.lineWidth=1;for(let i=0;i<4;i++){const yy=pad.t+ph*i/3;ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(pad.l+pw,yy);ctx.stroke()}}
+    data.forEach((p,i)=>{const up=p.c>=p.o,col=up?settings.upColor:settings.downColor,xx=x(i),yo=y(p.o),yc=y(p.c);ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(xx,y(p.h));ctx.lineTo(xx,y(p.l));ctx.stroke();const top=Math.min(yo,yc),bh=Math.max(1,Math.abs(yc-yo));ctx.fillRect(xx-cw/2,top,cw,bh)});
+    const last=data.at(-1);ctx.strokeStyle="rgba(216,255,114,.45)";ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(pad.l,y(last.c));ctx.lineTo(pad.l+pw,y(last.c));ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="#7b8797";ctx.font="9px system-ui";ctx.textAlign="left";ctx.fillText("NVDA · 15m",8,h-5);ctx.textAlign="right";ctx.fillText(fmtPrice(last.c),w-8,h-5);
+  }
 
   function renderAll(){renderInstrument();renderAssetList();renderAccount();renderActivity();updateTicket();if($("portfolioView").classList.contains("active"))renderPortfolio()}
 
@@ -246,7 +319,7 @@
   $("tutorialNav").addEventListener("click",openTutorial);$("openTutorialHome").addEventListener("click",openTutorial);$("openTutorialSettings").addEventListener("click",()=>{$("settingsBackdrop").classList.add("hidden");openTutorial()});$("closeTutorial").addEventListener("click",()=>$("tutorialOverlay").classList.add("hidden"));$("tutorialPrev").addEventListener("click",()=>{tutorialStep=Math.max(0,tutorialStep-1);renderTutorial()});$("tutorialNext").addEventListener("click",()=>{if(tutorialStep>=tutorials.length-1)$("tutorialOverlay").classList.add("hidden");else{tutorialStep++;renderTutorial()}});
 
   function applySettings(){document.body.dataset.theme=settings.theme;document.documentElement.style.setProperty("--up",settings.upColor);document.documentElement.style.setProperty("--down",settings.downColor);$("upColor").value=settings.upColor;$("downColor").value=settings.downColor;$("chartBg").value=settings.chartBg||"#0a0e13";$("gridToggle").checked=settings.grid;$("crosshairToggle").checked=settings.crosshair;$("compactToggle").checked=settings.compact;$("chartType").value=settings.chartType;$("overlaySelect").value=settings.overlay;qsa("#themePresets button").forEach(b=>b.classList.toggle("active",b.dataset.theme===settings.theme))}
-  $("settingsButton").addEventListener("click",()=>$("settingsBackdrop").classList.remove("hidden"));$("closeSettings").addEventListener("click",()=>$("settingsBackdrop").classList.add("hidden"));$("settingsBackdrop").addEventListener("click",e=>{if(e.target===$("settingsBackdrop"))$("settingsBackdrop").classList.add("hidden")});qsa("#themePresets button").forEach(b=>b.addEventListener("click",()=>{settings.theme=b.dataset.theme;applySettings();save();drawChart()}));$("upColor").addEventListener("input",e=>{settings.upColor=e.target.value;applySettings();save();drawChart();drawHero()});$("downColor").addEventListener("input",e=>{settings.downColor=e.target.value;applySettings();save();drawChart()});$("chartBg").addEventListener("input",e=>{settings.chartBg=e.target.value;applySettings();save();drawChart();drawHero()});$("gridToggle").addEventListener("change",e=>{settings.grid=e.target.checked;save();drawChart()});$("crosshairToggle").addEventListener("change",e=>{settings.crosshair=e.target.checked;save()});$("compactToggle").addEventListener("change",e=>{settings.compact=e.target.checked;document.body.classList.toggle("compact",settings.compact);save()});
+  $("settingsButton").addEventListener("click",()=>$("settingsBackdrop").classList.remove("hidden"));$("closeSettings").addEventListener("click",()=>$("settingsBackdrop").classList.add("hidden"));$("settingsBackdrop").addEventListener("click",e=>{if(e.target===$("settingsBackdrop"))$("settingsBackdrop").classList.add("hidden")});qsa("#themePresets button").forEach(b=>b.addEventListener("click",()=>{settings.theme=b.dataset.theme;applySettings();save();drawChart()}));$("upColor").addEventListener("input",e=>{settings.upColor=e.target.value;applySettings();save();drawChart();drawHero()});$("downColor").addEventListener("input",e=>{settings.downColor=e.target.value;applySettings();save();drawChart();drawHero()});$("chartBg").addEventListener("input",e=>{settings.chartBg=e.target.value;applySettings();save();drawChart();drawHero()});$("gridToggle").addEventListener("change",e=>{settings.grid=e.target.checked;save();drawChart();drawHero()});$("crosshairToggle").addEventListener("change",e=>{settings.crosshair=e.target.checked;save()});$("compactToggle").addEventListener("change",e=>{settings.compact=e.target.checked;document.body.classList.toggle("compact",settings.compact);save()});
   function resetAccount(cash){state=initialState(cash);save();$("depletedOverlay").classList.add("hidden");refreshChart();renderAll();renderPortfolio();showToast(`Paper account restarted with ${fmtMoney(cash)}`,"good")}
   $("resetSimulation").addEventListener("click",()=>{if(confirm("Reset your local paper account? The shared simulated market will not reset.")){resetAccount(CFG.startingCash);$("settingsBackdrop").classList.add("hidden")}});$("restart100").addEventListener("click",()=>resetAccount(100000));$("restart10").addEventListener("click",()=>resetAccount(10000));$("closeDepleted").addEventListener("click",()=>$("depletedOverlay").classList.add("hidden"));
 
@@ -254,7 +327,9 @@
 
   applySettings();restoreUi();
   syncGlobalMarket(true).finally(()=>{refreshChart();renderAll();renderHero()});
-  setTimeout(()=>{resizeChart();renderHero()},80);
+  requestAnimationFrame(()=>{resizeChart();renderHero()});
+  window.addEventListener("load",()=>{resizeChart();renderHero()});
+  if(window.ResizeObserver){const ro=new ResizeObserver(()=>{if($("homeView").classList.contains("active"))drawHero();if($("terminalView").classList.contains("active"))drawChart()});ro.observe($("homeView"));ro.observe($("chartStage"));}
   marketTimer=setInterval(tick,CFG.marketTickMs);
   heroTimer=setInterval(renderHero,15000);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden){syncGlobalMarket(true);refreshChart();renderAll();renderHero()}});
