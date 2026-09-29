@@ -1,0 +1,27 @@
+TICKRIFT – DEPLOY THIS VERSION
+
+IMPORTANT:
+Upload the CONTENTS of this folder into the ROOT of your GitHub repository.
+Do NOT upload the outer folder itself.
+
+Your GitHub repository root should directly contain:
+index.html
+app.js
+styles.css
+analytics.js
+config.js
+functions/
+learn/
+privacy/
+terms/
+data-sources/
+...
+
+After committing to main, Cloudflare Pages will automatically deploy the new commit.
+
+Cloudflare Pages settings for this static site:
+Production branch: main
+Framework preset: None
+Build command: blank (or exit 0)
+Build output directory: .
+Root directory: blank
