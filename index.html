@@ -87,6 +87,46 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .hero-chart-wrap{position:relative}
 .hero-chart-wrap canvas{position:absolute;inset:0}
 
+
+/* leaderboard + learn */
+.leaderboard-view,.learn-view{min-height:calc(100vh - 116px);padding-bottom:70px}
+.leaderboard-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px;align-items:start}
+.leaderboard-main,.leaderboard-side{padding:18px}
+.leaderboard-main .panel-heading h3{margin:0 0 4px;font-size:18px}
+.leaderboard-main .panel-heading span{font-size:9px;color:var(--muted)}
+.small-cta{padding:8px 11px;font-size:10px}
+.leaderboard-status{margin:12px 0;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#0c1118;color:var(--muted);font-size:10px}
+.leaderboard-table{width:100%;border-collapse:collapse;font-size:10px}
+.leaderboard-table th{padding:8px;text-align:left;color:var(--muted);font-weight:700;border-bottom:1px solid var(--line)}
+.leaderboard-table td{padding:10px 8px;border-bottom:1px solid #19212b}
+.leaderboard-table .right{text-align:right}
+.leaderboard-rank{width:44px;color:var(--muted);font-weight:850}
+.leaderboard-name{font-weight:850}
+.leaderboard-name small{display:block;color:var(--muted2);margin-top:2px;font-size:8px;font-weight:500}
+.leaderboard-money{font-variant-numeric:tabular-nums;font-weight:850}
+.leaderboard-you{background:rgba(216,255,114,.05);outline:1px solid rgba(216,255,114,.13)}
+.rank-medal{font-size:13px;margin-right:5px}
+.leaderboard-side h3{font-size:22px;margin:7px 0}
+.leaderboard-side p{color:var(--muted);font-size:11px;line-height:1.55}
+.player-label{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin:16px 0 7px}
+.player-name-input{width:100%;height:42px;border:1px solid var(--line2);background:#0b0f14;border-radius:8px;padding:0 11px;outline:none}
+.player-name-input:focus{border-color:#50617a}
+.full-cta{width:100%;margin-top:8px}
+.leaderboard-rules{display:grid;gap:9px;margin-top:19px}
+.leaderboard-rules>div{display:grid;grid-template-columns:28px 1fr;column-gap:8px;row-gap:2px;padding-top:9px;border-top:1px solid var(--line)}
+.leaderboard-rules span{grid-row:1 / span 2;color:var(--accent);font-size:9px;font-weight:900}
+.leaderboard-rules strong{font-size:10px}
+.leaderboard-rules small{color:var(--muted);font-size:8px;line-height:1.35}
+.learn-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.learn-card{display:block;padding:24px;transition:transform .15s,border-color .15s,background .15s}
+.learn-card:hover{transform:translateY(-2px);border-color:#40506a;background:#121923}
+.learn-card h3{font-size:23px;margin:9px 0}
+.learn-card p{color:var(--muted);line-height:1.6;margin:0 0 18px;max-width:590px}
+.learn-card b{font-size:10px;color:var(--accent)}
+.learn-note{margin-top:12px;padding:18px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.learn-note h2{margin:6px 0 7px;font-size:22px}
+.learn-note p{color:var(--muted);margin:0;font-size:11px;line-height:1.55}
+@media(max-width:900px){.leaderboard-layout{grid-template-columns:1fr}.learn-grid{grid-template-columns:1fr}.learn-note{align-items:flex-start;flex-direction:column}.leaderboard-view,.learn-view{min-height:auto}}
   </style>
   <script type="application/ld+json">
   {
@@ -110,8 +150,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
         <button class="nav-link active" data-view="home">Home</button>
         <button class="nav-link" data-view="terminal">Simulator</button>
         <button class="nav-link" data-view="portfolio">Portfolio</button>
+        <button class="nav-link" data-view="leaderboard">Leaderboard</button>
         <button class="nav-link" id="tutorialNav">Tutorial</button>
-        <a class="nav-link anchor" href="/learn/paper-trading/">Learn</a>
+        <button class="nav-link" data-view="learn">Learn</button>
       </nav>
       <div class="header-right">
         <div class="status-pill"><span class="status-dot" id="globalStatusDot"></span><span id="globalStatus">SHARED SIMULATION</span></div>
@@ -267,9 +308,52 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
           <section class="panel holdings-panel"><div class="panel-heading"><h3>Long-term holdings</h3><span>cost basis &amp; market value</span></div><div id="portfolioHoldings" class="table-host"></div></section>
         </div>
       </section>
+      <section id="leaderboardView" class="view leaderboard-view">
+        <div class="page-width page-pad">
+          <div class="page-title-row">
+            <div><span class="micro-label">GLOBAL PAPER LEADERBOARD</span><h1>Who has the most virtual cash?</h1><p>Compete using virtual paper equity. Only a nickname and your simulated equity are shared with the leaderboard.</p></div>
+            <div class="page-value"><span>Your paper equity</span><strong id="leaderboardYourEquity">$100,000.00</strong></div>
+          </div>
+          <div class="leaderboard-layout">
+            <section class="panel leaderboard-main">
+              <div class="panel-heading"><div><h3>Top players</h3><span id="leaderboardUpdated">Not synced yet</span></div><button id="leaderboardRefresh" class="secondary-cta small-cta">Refresh</button></div>
+              <div id="leaderboardStatus" class="leaderboard-status">Your anonymous player is ready. Open this page to join the global board.</div>
+              <div id="leaderboardTable" class="table-host"></div>
+            </section>
+            <aside class="panel leaderboard-side">
+              <span class="micro-label">YOUR PLAYER</span>
+              <h3>Pick a nickname</h3>
+              <p>Use something fun like <b>ChartGoblin</b> or <b>NVDA_Ninja</b>. Do not use your real name.</p>
+              <label class="player-label" for="playerNameInput">Nickname</label>
+              <input id="playerNameInput" class="player-name-input" maxlength="16" autocomplete="nickname" placeholder="Trader-AB12">
+              <button id="savePlayerName" class="primary-cta full-cta">Save nickname & join</button>
+              <div class="leaderboard-rules">
+                <div><span>01</span><strong>Virtual only</strong><small>No real money or brokerage accounts.</small></div>
+                <div><span>02</span><strong>Equity based</strong><small>Rank is based on current simulated account equity.</small></div>
+                <div><span>03</span><strong>Game rules</strong><small>Leaderboard data is a fun game feature, not an audited competition.</small></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="learnView" class="view learn-view">
+        <div class="page-width page-pad">
+          <div class="page-title-row">
+            <div><span class="micro-label">LEARN</span><h1>Learn the market mechanics</h1><p>Quick guides for paper trading, stocks, crypto and meme-coin simulation. Everything here is about the simulator, not real-money execution.</p></div>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card panel" href="/learn/paper-trading/" data-learn-card><span class="micro-label">PAPER TRADING</span><h3>How paper trading works</h3><p>Virtual positions, fills, P&amp;L, risk controls and the limits of simulation.</p><b>Open guide ↗</b></a>
+            <a class="learn-card panel" href="/learn/stock-market-simulator/" data-learn-card><span class="micro-label">STOCKS</span><h3>Stock market simulator</h3><p>Practise familiar stock tickers with synthetic prices and multiple chart timeframes.</p><b>Open guide ↗</b></a>
+            <a class="learn-card panel" href="/learn/crypto-trading-simulator/" data-learn-card><span class="micro-label">CRYPTO</span><h3>Crypto simulator</h3><p>Explore synthetic 24/7-style crypto movement with virtual money.</p><b>Open guide ↗</b></a>
+            <a class="learn-card panel" href="/learn/meme-coin-simulator/" data-learn-card><span class="micro-label">MEME COINS</span><h3>Meme-coin simulator</h3><p>Learn how the separate high-volatility practice category works.</p><b>Open guide ↗</b></a>
+          </div>
+          <section class="learn-note panel"><div><span class="micro-label">REMEMBER</span><h2>Tickrift is a simulation.</h2><p>All default prices are synthetic. Virtual funds have no cash value, and the simulator never places real orders.</p></div><button class="primary-cta" data-view="terminal" id="learnOpenSimulator">Open simulator</button></section>
+        </div>
+      </section>
     </main>
 
-    <footer class="site-footer"><span>Tickrift is a simulation. No real money or brokerage orders.</span><nav><a href="/learn/paper-trading/">Paper trading</a><a href="/learn/stock-market-simulator/">Stocks</a><a href="/learn/crypto-trading-simulator/">Crypto</a><a href="/learn/meme-coin-simulator/">Meme coins</a><a href="/data-sources/">Data sources</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="#" data-open-analytics-settings>Analytics settings</a></nav></footer>
+    <footer class="site-footer"><span>Tickrift is a simulation. No real money or brokerage orders.</span><nav><a href="/learn/">Learn</a><a href="#" data-view="leaderboard">Leaderboard</a><a href="/learn/paper-trading/">Paper trading</a><a href="/learn/stock-market-simulator/">Stocks</a><a href="/learn/crypto-trading-simulator/">Crypto</a><a href="/learn/meme-coin-simulator/">Meme coins</a><a href="/data-sources/">Data sources</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="#" data-open-analytics-settings>Analytics settings</a></nav></footer>
   </div>
 
   <div id="settingsBackdrop" class="overlay hidden"><aside class="drawer"><div class="drawer-head"><div><span class="micro-label">PREFERENCES</span><h2>Settings</h2></div><button class="icon-button" id="closeSettings">×</button></div><section><label class="setting-title">Theme</label><div class="theme-grid" id="themePresets"><button class="active" data-theme="carbon">Carbon</button><button data-theme="slate">Slate</button><button data-theme="midnight">Midnight</button></div></section><section><label class="setting-title">Candles</label><div class="color-grid"><label>Bullish <input id="upColor" type="color" value="#2fc98f"></label><label>Bearish <input id="downColor" type="color" value="#ef6574"></label></div></section><section><label class="setting-title">Chart background</label><div class="color-grid"><label>Background <input id="chartBg" type="color" value="#0a0e13"></label></div><small class="drawer-note">Use a light background when testing black or white candles.</small></section><section><label class="setting-title">Chart</label><div class="toggle-list"><label>Grid <input id="gridToggle" type="checkbox" checked></label><label>Crosshair <input id="crosshairToggle" type="checkbox" checked></label><label>Compact tables <input id="compactToggle" type="checkbox"></label></div></section><section><label class="setting-title">Simulation</label><button id="openTutorialSettings" class="drawer-button">Open tutorial</button><button id="resetSimulation" class="danger-button">Reset paper account</button></section><p class="drawer-note">Settings and your paper account are stored only in this browser. The shared synthetic market itself is clock-based and does not reset with your account.</p></aside></div>
@@ -374,7 +458,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
     return out;
   }
 
-  function initialState(cash=CFG.startingCash){return {cash,realized:0,positions:[],holdings:{},orders:[],history:[],equityHistory:[{t:Date.now(),v:cash}],watchlist:["NVDA","AAPL","BTC","ETH","SPX"],selected:"NVDA",category:"stocks",timeframe:"5m",activityPane:"positions",mode:"trade",tradeSide:"long",tradeType:"market",investSide:"buy",investType:"market",lastSeen:Date.now()}}
+  function initialState(cash=CFG.startingCash){const pid=(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`);return {cash,realized:0,positions:[],holdings:{},orders:[],history:[],equityHistory:[{t:Date.now(),v:cash}],watchlist:["NVDA","AAPL","BTC","ETH","SPX"],selected:"NVDA",category:"stocks",timeframe:"5m",activityPane:"positions",mode:"trade",tradeSide:"long",tradeType:"market",investSide:"buy",investType:"market",playerId:pid,playerName:`Trader-${pid.slice(0,4).toUpperCase()}`,lastSeen:Date.now()}}
   function loadState(){try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");return x&&typeof x.cash==="number"?Object.assign(initialState(),x):initialState()}catch{return initialState()}}
   function loadSettings(){try{return Object.assign({theme:"carbon",upColor:"#2fc98f",downColor:"#ef6574",chartBg:"#0a0e13",grid:true,crosshair:true,compact:false,chartType:"candles",overlay:"none",zoom:1},JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}"))}catch{return {theme:"carbon",upColor:"#2fc98f",downColor:"#ef6574",chartBg:"#0a0e13",grid:true,crosshair:true,compact:false,chartType:"candles",overlay:"none",zoom:1}}}
   let state=loadState(), settings=loadSettings();
@@ -432,9 +516,49 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
     }catch{}
   }
 
-  function renderViews(view){qsa(".view").forEach(v=>v.classList.remove("active"));$(view+"View").classList.add("active");document.body.classList.toggle("terminal-mode",view==="terminal");qsa(".nav-link[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="terminal"){resizeChart();renderAll()}if(view==="portfolio")renderPortfolio()}
+  let leaderboardLastSync=0, leaderboardSending=false;
+  function safePlayerName(raw){return String(raw||"").replace(/[^A-Za-z0-9 _-]/g,"").trim().replace(/\s+/g," ").slice(0,16)}
+  function escapeHtml(raw){const map={"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"};return String(raw??"").replace(/[&<>'"]/g,c=>map[c])}
+  async function submitLeaderboard(force=false){
+    if(!state.playerId||!state.playerName)return null;
+    if(!force && Date.now()-leaderboardLastSync<15000)return null;
+    leaderboardLastSync=Date.now();
+    const equity=portfolioSnapshot().equity;
+    try{
+      leaderboardSending=true;
+      const r=await fetch("/api/leaderboard",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({playerId:state.playerId,name:state.playerName,equity})});
+      if(!r.ok)throw new Error("leaderboard unavailable");
+      const d=await r.json();
+      if(d.rows)renderLeaderboard(d.rows,d.rank);
+      $("leaderboardStatus").textContent=`Playing as ${state.playerName} · global leaderboard synced`;
+      $("leaderboardUpdated").textContent=`Updated ${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`;
+      return d;
+    }catch{
+      $("leaderboardStatus").textContent="Global leaderboard is not connected yet. It will work after the D1 binding is added in Cloudflare.";
+      return null;
+    }finally{leaderboardSending=false}
+  }
+  function renderLeaderboard(rows=[],rank=null){
+    const equity=portfolioSnapshot().equity;
+    $("leaderboardYourEquity").textContent=fmtMoney(equity);
+    const host=$("leaderboardTable");
+    if(!rows.length){host.innerHTML=`<div class="empty-state">No global players have checked in yet. Save your nickname to be first.</div>`;return}
+    host.innerHTML=`<table class="leaderboard-table"><thead><tr><th>Rank</th><th>Player</th><th class="right">Paper equity</th></tr></thead><tbody>${rows.map((p,i)=>{const isYou=p.playerId===state.playerId;const rankNo=Number(p.rank)||i+1;const medal=rankNo===1?"🥇":rankNo===2?"🥈":rankNo===3?"🥉":"";return `<tr class="${isYou?"leaderboard-you":""}"><td class="leaderboard-rank">${medal?`<span class="rank-medal">${medal}</span>`:""}${rankNo}</td><td><span class="leaderboard-name">${escapeHtml(p.name)}${isYou?" · YOU":""}</span><small class="leaderboard-name">${new Date(Number(p.updatedAt)||Date.now()).toLocaleDateString()}</small></td><td class="right leaderboard-money">${fmtMoney(Number(p.equity)||0)}</td></tr>`}).join("")}</tbody></table>`;
+    if(rank!=null) $("leaderboardStatus").textContent=`Playing as ${state.playerName} · current rank #${rank}`;
+  }
+  async function loadLeaderboard(){
+    $("leaderboardYourEquity").textContent=fmtMoney(portfolioSnapshot().equity);
+    try{const r=await fetch(`/api/leaderboard?playerId=${encodeURIComponent(state.playerId)}`,{cache:"no-store"});if(!r.ok)throw new Error();const d=await r.json();renderLeaderboard(d.rows||[],d.rank);$("leaderboardUpdated").textContent=`Updated ${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`;}catch{renderLeaderboard([]);$("leaderboardStatus").textContent="Global leaderboard is waiting for the D1 setup in Cloudflare."}
+  }
+  function savePlayerName(){const input=$("playerNameInput"),name=safePlayerName(input.value);if(name.length<2){$("leaderboardStatus").textContent="Choose a nickname with at least 2 letters or numbers.";return}state.playerName=name;save();submitLeaderboard(true)}
+
+  function renderViews(view){qsa(".view").forEach(v=>v.classList.remove("active"));const target=$(view+"View");if(!target)return;target.classList.add("active");document.body.classList.toggle("terminal-mode",view==="terminal");qsa(".nav-link[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="terminal"){resizeChart();renderAll()}if(view==="portfolio")renderPortfolio();if(view==="leaderboard"){$("playerNameInput").value=state.playerName||"";loadLeaderboard();submitLeaderboard(true)}if(view==="learn"){requestAnimationFrame(()=>window.scrollTo({top:0,behavior:"smooth"}))}}
   qsa("[data-view]").forEach(b=>b.addEventListener("click",()=>renderViews(b.dataset.view)));
   $("startTrading").addEventListener("click",()=>renderViews("terminal"));
+  $("savePlayerName").addEventListener("click",savePlayerName);
+  $("playerNameInput").addEventListener("keydown",e=>{if(e.key==="Enter")savePlayerName()});
+  $("leaderboardRefresh").addEventListener("click",()=>{loadLeaderboard();submitLeaderboard(true)});
+  $("learnOpenSimulator").addEventListener("click",()=>renderViews("terminal"));
   qsa("[data-start-mode]").forEach(b=>b.addEventListener("click",()=>{setMode(b.dataset.startMode);renderViews("terminal")}));
 
   function filteredAssets(){const s=$("assetSearch").value.trim().toLowerCase();let arr=ASSETS.filter(a=>a.category===state.category);if($("watchlistOnly").classList.contains("active"))arr=arr.filter(a=>state.watchlist.includes(a.symbol));if(s)arr=arr.filter(a=>`${a.symbol} ${a.name}`.toLowerCase().includes(s));return arr}
@@ -595,7 +719,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
   function renderAll(){renderInstrument();renderAssetList();renderAccount();renderActivity();updateTicket();if($("portfolioView").classList.contains("active"))renderPortfolio()}
 
-  function tick(){processMarketLogic();renderAll();if($("terminalView").classList.contains("active")){chartData=candleSeries(BY_SYMBOL.get(state.selected),state.timeframe,chartData.length||TF_COUNT[state.timeframe]);drawChart()}if(Date.now()%30000<CFG.marketTickMs)syncGlobalMarket();const s=portfolioSnapshot();const last=state.equityHistory.at(-1);if(!last||Date.now()-last.t>60000){state.equityHistory.push({t:Date.now(),v:s.equity});state.equityHistory=state.equityHistory.slice(-500);save()}}
+  function tick(){processMarketLogic();renderAll();if($("terminalView").classList.contains("active")){chartData=candleSeries(BY_SYMBOL.get(state.selected),state.timeframe,chartData.length||TF_COUNT[state.timeframe]);drawChart()}if(Date.now()%30000<CFG.marketTickMs)syncGlobalMarket();const s=portfolioSnapshot();const last=state.equityHistory.at(-1);if(!last||Date.now()-last.t>60000){state.equityHistory.push({t:Date.now(),v:s.equity});state.equityHistory=state.equityHistory.slice(-500);save()}if(state.playerName&&Date.now()-leaderboardLastSync>30000)submitLeaderboard(false)}
 
   function openTutorial(){tutorialStep=0;$("tutorialOverlay").classList.remove("hidden");renderTutorial()}
   function renderTutorial(){const t=tutorials[tutorialStep];$("tutorialContent").innerHTML=`<span class="micro-label">STEP ${tutorialStep+1} OF ${tutorials.length}</span><h3>${t.title}</h3><p>${t.body}</p>`;$("tutorialProgress").innerHTML=tutorials.map((_,i)=>`<i class="${i<=tutorialStep?"active":""}"></i>`).join("");$("tutorialPrev").disabled=tutorialStep===0;$("tutorialNext").textContent=tutorialStep===tutorials.length-1?"Finish":"Next"}
@@ -603,12 +727,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
   function applySettings(){document.body.dataset.theme=settings.theme;document.documentElement.style.setProperty("--up",settings.upColor);document.documentElement.style.setProperty("--down",settings.downColor);$("upColor").value=settings.upColor;$("downColor").value=settings.downColor;$("chartBg").value=settings.chartBg||"#0a0e13";$("gridToggle").checked=settings.grid;$("crosshairToggle").checked=settings.crosshair;$("compactToggle").checked=settings.compact;$("chartType").value=settings.chartType;$("overlaySelect").value=settings.overlay;qsa("#themePresets button").forEach(b=>b.classList.toggle("active",b.dataset.theme===settings.theme))}
   $("settingsButton").addEventListener("click",()=>$("settingsBackdrop").classList.remove("hidden"));$("closeSettings").addEventListener("click",()=>$("settingsBackdrop").classList.add("hidden"));$("settingsBackdrop").addEventListener("click",e=>{if(e.target===$("settingsBackdrop"))$("settingsBackdrop").classList.add("hidden")});qsa("#themePresets button").forEach(b=>b.addEventListener("click",()=>{settings.theme=b.dataset.theme;applySettings();save();drawChart()}));$("upColor").addEventListener("input",e=>{settings.upColor=e.target.value;applySettings();save();drawChart();drawHero()});$("downColor").addEventListener("input",e=>{settings.downColor=e.target.value;applySettings();save();drawChart();drawHero()});$("chartBg").addEventListener("input",e=>{settings.chartBg=e.target.value;applySettings();save();drawChart();drawHero()});$("gridToggle").addEventListener("change",e=>{settings.grid=e.target.checked;save();drawChart();drawHero()});$("crosshairToggle").addEventListener("change",e=>{settings.crosshair=e.target.checked;save()});$("compactToggle").addEventListener("change",e=>{settings.compact=e.target.checked;document.body.classList.toggle("compact",settings.compact);save()});
-  function resetAccount(cash){state=initialState(cash);save();$("depletedOverlay").classList.add("hidden");refreshChart();renderAll();renderPortfolio();showToast(`Paper account restarted with ${fmtMoney(cash)}`,"good")}
+  function resetAccount(cash){const playerId=state.playerId,playerName=state.playerName;state=initialState(cash);state.playerId=playerId;state.playerName=playerName;save();$("depletedOverlay").classList.add("hidden");refreshChart();renderAll();renderPortfolio();showToast(`Paper account restarted with ${fmtMoney(cash)}`,"good");submitLeaderboard(true)}
   $("resetSimulation").addEventListener("click",()=>{if(confirm("Reset your local paper account? The shared simulated market will not reset.")){resetAccount(CFG.startingCash);$("settingsBackdrop").classList.add("hidden")}});$("restart100").addEventListener("click",()=>resetAccount(100000));$("restart10").addEventListener("click",()=>resetAccount(10000));$("closeDepleted").addEventListener("click",()=>$("depletedOverlay").classList.add("hidden"));
 
   function restoreUi(){const a=BY_SYMBOL.get(state.selected)||ASSETS[0];state.selected=a.symbol;state.category=a.category;qsa("#assetTabs button").forEach(b=>b.classList.toggle("active",b.dataset.category===state.category));qsa("#timeframes button").forEach(b=>b.classList.toggle("active",b.dataset.tf===state.timeframe));qsa("#activityTabs button").forEach(b=>b.classList.toggle("active",b.dataset.pane===state.activityPane));qsa("#directionToggle button").forEach(b=>b.classList.toggle("active",b.dataset.side===state.tradeSide));qsa("#investSideToggle button").forEach(b=>b.classList.toggle("active",b.dataset.side===state.investSide));qsa("#tradeOrderTypes button").forEach(b=>b.classList.toggle("active",b.dataset.type===state.tradeType));qsa("#investOrderTypes button").forEach(b=>b.classList.toggle("active",b.dataset.type===state.investType));$("tradeTriggerRow").classList.toggle("hidden",state.tradeType==="market");$("investTriggerRow").classList.toggle("hidden",state.investType==="market");setMode(state.mode)}
 
   applySettings();restoreUi();
+  $("playerNameInput").value=state.playerName||"";
   syncGlobalMarket(true).finally(()=>{refreshChart();renderAll();renderHero()});
   requestAnimationFrame(()=>{resizeChart();renderHero()});
   window.addEventListener("load",()=>{resizeChart();renderHero()});

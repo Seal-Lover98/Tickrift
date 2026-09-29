@@ -12,3 +12,14 @@ CREATE TABLE IF NOT EXISTS processed_orders (
 );
 
 CREATE INDEX IF NOT EXISTS idx_processed_orders_created ON processed_orders(created_at);
+
+
+CREATE TABLE IF NOT EXISTS leaderboard_players (
+  player_id TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  equity REAL NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_leaderboard_equity ON leaderboard_players(equity DESC);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_updated ON leaderboard_players(updated_at DESC);

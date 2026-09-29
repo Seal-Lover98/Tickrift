@@ -1,38 +1,19 @@
-TICKRIFT — CLOUDFLARE PAGES
+TICKRIFT — CLOUDFLARE SETUP
 
-This repository is a static HTML/CSS/JS Cloudflare Pages site with a /functions directory for Pages Functions.
+1. GitHub: upload the contents of this folder so index.html is in the repository root. Commit to main.
+2. Cloudflare Dashboard -> Workers & Pages -> Tickrift -> Deployments. Wait for the new deployment to say Success.
+3. Cloudflare -> D1 SQL database -> Create database. Name: tickrift-market. If Data location/jurisdiction is offered, EU is suitable for an EU-based project.
+4. Open tickrift-market -> Console and run the full schema.sql from this package. This creates market_impact, processed_orders and leaderboard_players.
+5. Cloudflare -> Workers & Pages -> Tickrift -> Settings -> Bindings -> Add -> D1 database bindings.
+6. Variable name MUST be MARKET_DB. Select tickrift-market. Save.
+7. Go to Deployments and redeploy the latest GitHub commit. The binding only takes effect after redeploy.
+8. Open https://YOUR-DOMAIN/api/market?symbols=NVDA . Look for globalFlow:true.
+9. Open https://YOUR-DOMAIN/api/leaderboard . Before D1 is connected it will fail; after binding it should return JSON with rows.
+10. Test Tickrift: Learn, Leaderboard, NVDA chart, timeframe buttons, Trade/Invest, open/close a paper position.
 
-GitHub repository layout (important):
-- index.html must be directly in the repository root.
-- app.js and styles.css are kept for maintainability; the homepage also contains bundled copies so the main simulator still works if an auxiliary asset is accidentally missed during an upload.
-- functions/ must be directly in the repository root.
-
-Cloudflare Pages → Settings → Builds & deployments:
-- Production branch: main
-- Framework preset: none
-- Build command: blank for this no-build site (Cloudflare also documents `exit 0` for no-preset deployments)
-- Build output directory: .
-- Root directory: blank
-
-After each GitHub commit, the connected Pages project should automatically create a new deployment. Wait for Success before testing the production URL.
-
-Pages Functions:
-- /functions/api/market.js → /api/market
-- /functions/robots.txt.js → /robots.txt
-- /functions/sitemap.xml.js → /sitemap.xml
-- /functions/_middleware.js → response security headers
-
-Optional global crowd-flow backend:
-1. Create a Cloudflare D1 database.
-2. Run schema.sql.
-3. Bind it to the Pages project with variable name exactly MARKET_DB.
-4. Redeploy.
-
-The simulator itself works without D1. Without the binding, the market falls back to the same clock-synchronised synthetic base price for everyone; shared player-order impact is unavailable.
-
-SEO after deploy:
-- Verify the domain in Google Search Console.
-- Submit sitemap.xml.
-- Inspect / in URL Inspection.
-- The homepage includes the supplied Google Search Console verification tag.
-- Google Analytics is optional and only loads after user consent.
+Cloudflare Pages build settings for this no-build site:
+Production branch: main
+Framework preset: None
+Build command: blank
+Build output directory: .
+Root directory: blank

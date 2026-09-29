@@ -1,3 +1,4 @@
+
 (() => {
   "use strict";
 
@@ -91,7 +92,7 @@
     return out;
   }
 
-  function initialState(cash=CFG.startingCash){return {cash,realized:0,positions:[],holdings:{},orders:[],history:[],equityHistory:[{t:Date.now(),v:cash}],watchlist:["NVDA","AAPL","BTC","ETH","SPX"],selected:"NVDA",category:"stocks",timeframe:"5m",activityPane:"positions",mode:"trade",tradeSide:"long",tradeType:"market",investSide:"buy",investType:"market",lastSeen:Date.now()}}
+  function initialState(cash=CFG.startingCash){const pid=(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`);return {cash,realized:0,positions:[],holdings:{},orders:[],history:[],equityHistory:[{t:Date.now(),v:cash}],watchlist:["NVDA","AAPL","BTC","ETH","SPX"],selected:"NVDA",category:"stocks",timeframe:"5m",activityPane:"positions",mode:"trade",tradeSide:"long",tradeType:"market",investSide:"buy",investType:"market",playerId:pid,playerName:`Trader-${pid.slice(0,4).toUpperCase()}`,lastSeen:Date.now()}}
   function loadState(){try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");return x&&typeof x.cash==="number"?Object.assign(initialState(),x):initialState()}catch{return initialState()}}
   function loadSettings(){try{return Object.assign({theme:"carbon",upColor:"#2fc98f",downColor:"#ef6574",chartBg:"#0a0e13",grid:true,crosshair:true,compact:false,chartType:"candles",overlay:"none",zoom:1},JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}"))}catch{return {theme:"carbon",upColor:"#2fc98f",downColor:"#ef6574",chartBg:"#0a0e13",grid:true,crosshair:true,compact:false,chartType:"candles",overlay:"none",zoom:1}}}
   let state=loadState(), settings=loadSettings();
@@ -149,9 +150,49 @@
     }catch{}
   }
 
-  function renderViews(view){qsa(".view").forEach(v=>v.classList.remove("active"));$(view+"View").classList.add("active");document.body.classList.toggle("terminal-mode",view==="terminal");qsa(".nav-link[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="terminal"){resizeChart();renderAll()}if(view==="portfolio")renderPortfolio()}
+  let leaderboardLastSync=0, leaderboardSending=false;
+  function safePlayerName(raw){return String(raw||"").replace(/[^A-Za-z0-9 _-]/g,"").trim().replace(/\s+/g," ").slice(0,16)}
+  function escapeHtml(raw){const map={"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"};return String(raw??"").replace(/[&<>'"]/g,c=>map[c])}
+  async function submitLeaderboard(force=false){
+    if(!state.playerId||!state.playerName)return null;
+    if(!force && Date.now()-leaderboardLastSync<15000)return null;
+    leaderboardLastSync=Date.now();
+    const equity=portfolioSnapshot().equity;
+    try{
+      leaderboardSending=true;
+      const r=await fetch("/api/leaderboard",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({playerId:state.playerId,name:state.playerName,equity})});
+      if(!r.ok)throw new Error("leaderboard unavailable");
+      const d=await r.json();
+      if(d.rows)renderLeaderboard(d.rows,d.rank);
+      $("leaderboardStatus").textContent=`Playing as ${state.playerName} · global leaderboard synced`;
+      $("leaderboardUpdated").textContent=`Updated ${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`;
+      return d;
+    }catch{
+      $("leaderboardStatus").textContent="Global leaderboard is not connected yet. It will work after the D1 binding is added in Cloudflare.";
+      return null;
+    }finally{leaderboardSending=false}
+  }
+  function renderLeaderboard(rows=[],rank=null){
+    const equity=portfolioSnapshot().equity;
+    $("leaderboardYourEquity").textContent=fmtMoney(equity);
+    const host=$("leaderboardTable");
+    if(!rows.length){host.innerHTML=`<div class="empty-state">No global players have checked in yet. Save your nickname to be first.</div>`;return}
+    host.innerHTML=`<table class="leaderboard-table"><thead><tr><th>Rank</th><th>Player</th><th class="right">Paper equity</th></tr></thead><tbody>${rows.map((p,i)=>{const isYou=p.playerId===state.playerId;const rankNo=Number(p.rank)||i+1;const medal=rankNo===1?"🥇":rankNo===2?"🥈":rankNo===3?"🥉":"";return `<tr class="${isYou?"leaderboard-you":""}"><td class="leaderboard-rank">${medal?`<span class="rank-medal">${medal}</span>`:""}${rankNo}</td><td><span class="leaderboard-name">${escapeHtml(p.name)}${isYou?" · YOU":""}</span><small class="leaderboard-name">${new Date(Number(p.updatedAt)||Date.now()).toLocaleDateString()}</small></td><td class="right leaderboard-money">${fmtMoney(Number(p.equity)||0)}</td></tr>`}).join("")}</tbody></table>`;
+    if(rank!=null) $("leaderboardStatus").textContent=`Playing as ${state.playerName} · current rank #${rank}`;
+  }
+  async function loadLeaderboard(){
+    $("leaderboardYourEquity").textContent=fmtMoney(portfolioSnapshot().equity);
+    try{const r=await fetch(`/api/leaderboard?playerId=${encodeURIComponent(state.playerId)}`,{cache:"no-store"});if(!r.ok)throw new Error();const d=await r.json();renderLeaderboard(d.rows||[],d.rank);$("leaderboardUpdated").textContent=`Updated ${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`;}catch{renderLeaderboard([]);$("leaderboardStatus").textContent="Global leaderboard is waiting for the D1 setup in Cloudflare."}
+  }
+  function savePlayerName(){const input=$("playerNameInput"),name=safePlayerName(input.value);if(name.length<2){$("leaderboardStatus").textContent="Choose a nickname with at least 2 letters or numbers.";return}state.playerName=name;save();submitLeaderboard(true)}
+
+  function renderViews(view){qsa(".view").forEach(v=>v.classList.remove("active"));const target=$(view+"View");if(!target)return;target.classList.add("active");document.body.classList.toggle("terminal-mode",view==="terminal");qsa(".nav-link[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="terminal"){resizeChart();renderAll()}if(view==="portfolio")renderPortfolio();if(view==="leaderboard"){$("playerNameInput").value=state.playerName||"";loadLeaderboard();submitLeaderboard(true)}if(view==="learn"){requestAnimationFrame(()=>window.scrollTo({top:0,behavior:"smooth"}))}}
   qsa("[data-view]").forEach(b=>b.addEventListener("click",()=>renderViews(b.dataset.view)));
   $("startTrading").addEventListener("click",()=>renderViews("terminal"));
+  $("savePlayerName").addEventListener("click",savePlayerName);
+  $("playerNameInput").addEventListener("keydown",e=>{if(e.key==="Enter")savePlayerName()});
+  $("leaderboardRefresh").addEventListener("click",()=>{loadLeaderboard();submitLeaderboard(true)});
+  $("learnOpenSimulator").addEventListener("click",()=>renderViews("terminal"));
   qsa("[data-start-mode]").forEach(b=>b.addEventListener("click",()=>{setMode(b.dataset.startMode);renderViews("terminal")}));
 
   function filteredAssets(){const s=$("assetSearch").value.trim().toLowerCase();let arr=ASSETS.filter(a=>a.category===state.category);if($("watchlistOnly").classList.contains("active"))arr=arr.filter(a=>state.watchlist.includes(a.symbol));if(s)arr=arr.filter(a=>`${a.symbol} ${a.name}`.toLowerCase().includes(s));return arr}
@@ -312,7 +353,7 @@
 
   function renderAll(){renderInstrument();renderAssetList();renderAccount();renderActivity();updateTicket();if($("portfolioView").classList.contains("active"))renderPortfolio()}
 
-  function tick(){processMarketLogic();renderAll();if($("terminalView").classList.contains("active")){chartData=candleSeries(BY_SYMBOL.get(state.selected),state.timeframe,chartData.length||TF_COUNT[state.timeframe]);drawChart()}if(Date.now()%30000<CFG.marketTickMs)syncGlobalMarket();const s=portfolioSnapshot();const last=state.equityHistory.at(-1);if(!last||Date.now()-last.t>60000){state.equityHistory.push({t:Date.now(),v:s.equity});state.equityHistory=state.equityHistory.slice(-500);save()}}
+  function tick(){processMarketLogic();renderAll();if($("terminalView").classList.contains("active")){chartData=candleSeries(BY_SYMBOL.get(state.selected),state.timeframe,chartData.length||TF_COUNT[state.timeframe]);drawChart()}if(Date.now()%30000<CFG.marketTickMs)syncGlobalMarket();const s=portfolioSnapshot();const last=state.equityHistory.at(-1);if(!last||Date.now()-last.t>60000){state.equityHistory.push({t:Date.now(),v:s.equity});state.equityHistory=state.equityHistory.slice(-500);save()}if(state.playerName&&Date.now()-leaderboardLastSync>30000)submitLeaderboard(false)}
 
   function openTutorial(){tutorialStep=0;$("tutorialOverlay").classList.remove("hidden");renderTutorial()}
   function renderTutorial(){const t=tutorials[tutorialStep];$("tutorialContent").innerHTML=`<span class="micro-label">STEP ${tutorialStep+1} OF ${tutorials.length}</span><h3>${t.title}</h3><p>${t.body}</p>`;$("tutorialProgress").innerHTML=tutorials.map((_,i)=>`<i class="${i<=tutorialStep?"active":""}"></i>`).join("");$("tutorialPrev").disabled=tutorialStep===0;$("tutorialNext").textContent=tutorialStep===tutorials.length-1?"Finish":"Next"}
@@ -320,12 +361,13 @@
 
   function applySettings(){document.body.dataset.theme=settings.theme;document.documentElement.style.setProperty("--up",settings.upColor);document.documentElement.style.setProperty("--down",settings.downColor);$("upColor").value=settings.upColor;$("downColor").value=settings.downColor;$("chartBg").value=settings.chartBg||"#0a0e13";$("gridToggle").checked=settings.grid;$("crosshairToggle").checked=settings.crosshair;$("compactToggle").checked=settings.compact;$("chartType").value=settings.chartType;$("overlaySelect").value=settings.overlay;qsa("#themePresets button").forEach(b=>b.classList.toggle("active",b.dataset.theme===settings.theme))}
   $("settingsButton").addEventListener("click",()=>$("settingsBackdrop").classList.remove("hidden"));$("closeSettings").addEventListener("click",()=>$("settingsBackdrop").classList.add("hidden"));$("settingsBackdrop").addEventListener("click",e=>{if(e.target===$("settingsBackdrop"))$("settingsBackdrop").classList.add("hidden")});qsa("#themePresets button").forEach(b=>b.addEventListener("click",()=>{settings.theme=b.dataset.theme;applySettings();save();drawChart()}));$("upColor").addEventListener("input",e=>{settings.upColor=e.target.value;applySettings();save();drawChart();drawHero()});$("downColor").addEventListener("input",e=>{settings.downColor=e.target.value;applySettings();save();drawChart();drawHero()});$("chartBg").addEventListener("input",e=>{settings.chartBg=e.target.value;applySettings();save();drawChart();drawHero()});$("gridToggle").addEventListener("change",e=>{settings.grid=e.target.checked;save();drawChart();drawHero()});$("crosshairToggle").addEventListener("change",e=>{settings.crosshair=e.target.checked;save()});$("compactToggle").addEventListener("change",e=>{settings.compact=e.target.checked;document.body.classList.toggle("compact",settings.compact);save()});
-  function resetAccount(cash){state=initialState(cash);save();$("depletedOverlay").classList.add("hidden");refreshChart();renderAll();renderPortfolio();showToast(`Paper account restarted with ${fmtMoney(cash)}`,"good")}
+  function resetAccount(cash){const playerId=state.playerId,playerName=state.playerName;state=initialState(cash);state.playerId=playerId;state.playerName=playerName;save();$("depletedOverlay").classList.add("hidden");refreshChart();renderAll();renderPortfolio();showToast(`Paper account restarted with ${fmtMoney(cash)}`,"good");submitLeaderboard(true)}
   $("resetSimulation").addEventListener("click",()=>{if(confirm("Reset your local paper account? The shared simulated market will not reset.")){resetAccount(CFG.startingCash);$("settingsBackdrop").classList.add("hidden")}});$("restart100").addEventListener("click",()=>resetAccount(100000));$("restart10").addEventListener("click",()=>resetAccount(10000));$("closeDepleted").addEventListener("click",()=>$("depletedOverlay").classList.add("hidden"));
 
   function restoreUi(){const a=BY_SYMBOL.get(state.selected)||ASSETS[0];state.selected=a.symbol;state.category=a.category;qsa("#assetTabs button").forEach(b=>b.classList.toggle("active",b.dataset.category===state.category));qsa("#timeframes button").forEach(b=>b.classList.toggle("active",b.dataset.tf===state.timeframe));qsa("#activityTabs button").forEach(b=>b.classList.toggle("active",b.dataset.pane===state.activityPane));qsa("#directionToggle button").forEach(b=>b.classList.toggle("active",b.dataset.side===state.tradeSide));qsa("#investSideToggle button").forEach(b=>b.classList.toggle("active",b.dataset.side===state.investSide));qsa("#tradeOrderTypes button").forEach(b=>b.classList.toggle("active",b.dataset.type===state.tradeType));qsa("#investOrderTypes button").forEach(b=>b.classList.toggle("active",b.dataset.type===state.investType));$("tradeTriggerRow").classList.toggle("hidden",state.tradeType==="market");$("investTriggerRow").classList.toggle("hidden",state.investType==="market");setMode(state.mode)}
 
   applySettings();restoreUi();
+  $("playerNameInput").value=state.playerName||"";
   syncGlobalMarket(true).finally(()=>{refreshChart();renderAll();renderHero()});
   requestAnimationFrame(()=>{resizeChart();renderHero()});
   window.addEventListener("load",()=>{resizeChart();renderHero()});
@@ -335,3 +377,5 @@
   document.addEventListener("visibilitychange",()=>{if(!document.hidden){syncGlobalMarket(true);refreshChart();renderAll();renderHero()}});
   window.addEventListener("beforeunload",save);
 })();
+
+  

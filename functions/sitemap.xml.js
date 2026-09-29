@@ -1,5 +1,6 @@
 const paths=[
   ["/","2026-09-29"],
+  ["/learn/","2026-09-29"],
   ["/learn/paper-trading/","2026-09-22"],
   ["/learn/stock-market-simulator/","2026-09-22"],
   ["/learn/crypto-trading-simulator/","2026-09-22"],
